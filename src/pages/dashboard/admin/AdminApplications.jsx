@@ -3,6 +3,17 @@ import { Search, Filter, Activity } from 'lucide-react'
 import { applications } from '../../../data/applications'
 import { candidates, statusColors, statusLabels } from '../../../data/candidates'
 import { jobs } from '../../../data/jobs'
+import DataPortal from '../../../components/DataPortal'
+
+const APP_COLUMNS = [
+  { label: 'Candidate Name', accessor: a => candidates.find(c => c.id === a.candidateId)?.name || a.candidateId },
+  { label: 'Role Applied', accessor: a => candidates.find(c => c.id === a.candidateId)?.role || '' },
+  { label: 'Job Title', accessor: a => jobs.find(j => j.id === a.jobId)?.title || a.jobId },
+  { label: 'Company', accessor: a => jobs.find(j => j.id === a.jobId)?.company || '' },
+  { label: 'Applied On', accessor: a => new Date(a.appliedAt).toLocaleDateString('en-IN') },
+  { label: 'Status', accessor: a => statusLabels[a.status] || a.status },
+  { label: 'Recruiter Note', accessor: 'recruiterNote' },
+]
 
 const premiumStatusColors = {
   applied: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700',
@@ -38,6 +49,7 @@ export default function AdminApplications() {
           <h1 className="text-3xl md:text-4xl font-display font-bold text-brand-charcoal dark:text-white tracking-tight">Transmission Flow</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">{applications.length} total active nodes tracked</p>
         </div>
+        <DataPortal title="Application Pipeline" rows={applications} columns={APP_COLUMNS} />
       </div>
 
       <div className="card bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 p-6 overflow-hidden">

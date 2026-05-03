@@ -1,6 +1,22 @@
 import { useState, useMemo } from 'react'
 import { Search, Eye, UserCheck, FileText, Download, Activity, Filter, ShieldCheck } from 'lucide-react'
 import { candidates } from '../../../data/candidates'
+import DataPortal from '../../../components/DataPortal'
+
+const RESUME_COLUMNS = [
+  { label: 'Full Name', accessor: 'name' },
+  { label: 'Role', accessor: 'role' },
+  { label: 'Location', accessor: 'location' },
+  { label: 'Experience (yrs)', accessor: 'experience' },
+  { label: 'Qualification', accessor: 'qualification' },
+  { label: 'Skills', accessor: c => c.skills?.join(', ') || '' },
+  { label: 'Expected Salary (₹)', accessor: 'expectedSalary' },
+  { label: 'Notice Period (days)', accessor: 'noticePeriod' },
+  { label: 'Email', accessor: 'email' },
+  { label: 'Phone', accessor: 'phone' },
+  { label: 'Resume Available', accessor: c => c.resumeAvailable ? 'Yes' : 'No' },
+  { label: 'Open to Work', accessor: c => c.openToWork ? 'Yes' : 'No' },
+]
 
 export default function AdminResumeDB() {
   const [search, setSearch] = useState('')
@@ -32,6 +48,7 @@ export default function AdminResumeDB() {
           <h1 className="text-3xl md:text-4xl font-display font-bold text-brand-charcoal dark:text-white tracking-tight">Talent Data Center</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">{candidates.length} secured profiles · Global administrative query access</p>
         </div>
+        <DataPortal title="Talent Data Center" rows={candidates} columns={RESUME_COLUMNS} />
       </div>
 
       {/* Search & Filters */}

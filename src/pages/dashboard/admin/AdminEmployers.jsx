@@ -1,6 +1,21 @@
 import { useState } from 'react'
 import { Search, Eye, Edit, Building2, Activity, Filter, X, CheckCircle, Plus } from 'lucide-react'
 import { employers } from '../../../data/employers'
+import DataPortal from '../../../components/DataPortal'
+
+const EMPLOYER_COLUMNS = [
+  { label: 'Company Name', accessor: 'name' },
+  { label: 'Industry', accessor: 'industry' },
+  { label: 'City', accessor: 'city' },
+  { label: 'State', accessor: 'state' },
+  { label: 'Size', accessor: 'size' },
+  { label: 'Contact Person', accessor: 'contactPerson' },
+  { label: 'Email', accessor: 'email' },
+  { label: 'Phone', accessor: 'phone' },
+  { label: 'Active Jobs', accessor: 'activeJobs' },
+  { label: 'Total Hired', accessor: 'totalHired' },
+  { label: 'Status', accessor: 'status' },
+]
 
 function RegisterEntityModal({ onClose, emp = null }) {
   const [form, setForm] = useState(emp ? {
@@ -107,9 +122,12 @@ export default function AdminEmployers() {
           <h1 className="text-3xl md:text-4xl font-display font-bold text-brand-charcoal dark:text-white tracking-tight">Employer Architecture</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">{employers.length} authenticated partner companies</p>
         </div>
-        <button onClick={handleNew} className="btn-primary shadow-glow-cyan">
-          <Plus size={16} className="mr-2" /> Register Partner
-        </button>
+        <div className="flex items-center gap-2">
+          <DataPortal title="Employer Architecture" rows={employers} columns={EMPLOYER_COLUMNS} />
+          <button onClick={handleNew} className="btn-primary shadow-glow-cyan">
+            <Plus size={16} className="mr-2" /> Register Partner
+          </button>
+        </div>
       </div>
 
       <div className="card bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 p-6 overflow-hidden">

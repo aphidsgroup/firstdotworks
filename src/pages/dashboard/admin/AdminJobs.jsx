@@ -1,6 +1,24 @@
 import { useState } from 'react'
 import { Plus, Edit, Eye, Trash2, Search, Filter, X, CheckCircle, Briefcase, Activity } from 'lucide-react'
 import { jobs, formatSalary } from '../../../data/jobs'
+import DataPortal from '../../../components/DataPortal'
+
+const JOB_COLUMNS = [
+  { label: 'Title', accessor: 'title' },
+  { label: 'Company', accessor: 'company' },
+  { label: 'Location', accessor: 'location' },
+  { label: 'Department', accessor: 'department' },
+  { label: 'Work Mode', accessor: 'workMode' },
+  { label: 'Employment Type', accessor: 'employmentType' },
+  { label: 'Min Salary', accessor: 'minSalary' },
+  { label: 'Max Salary', accessor: 'maxSalary' },
+  { label: 'Experience Min', accessor: 'minExperience' },
+  { label: 'Experience Max', accessor: 'maxExperience' },
+  { label: 'Openings', accessor: 'openings' },
+  { label: 'Applicants', accessor: 'applicantCount' },
+  { label: 'Status', accessor: 'status' },
+  { label: 'Deadline', accessor: r => r.deadline ? new Date(r.deadline).toLocaleDateString('en-IN') : '' },
+]
 
 const statusColors = { published: 'bg-green-500/10 text-green-500 border-green-500/20', draft: 'bg-gray-500/10 text-gray-500 border-gray-500/20', closed: 'bg-red-500/10 text-red-500 border-red-500/20' }
 
@@ -161,9 +179,12 @@ export default function AdminJobs() {
           <h1 className="text-3xl md:text-4xl font-display font-bold text-brand-charcoal dark:text-white tracking-tight">Job Management</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Control center for all active hiring mandates</p>
         </div>
-        <button onClick={handleNew} className="btn-primary shadow-glow-cyan" id="admin-post-job-btn">
-          <Plus size={18} className="mr-2" /> Initialize Mandate
-        </button>
+        <div className="flex items-center gap-2">
+          <DataPortal title="Job Mandates" rows={jobs} columns={JOB_COLUMNS} />
+          <button onClick={handleNew} className="btn-primary shadow-glow-cyan" id="admin-post-job-btn">
+            <Plus size={18} className="mr-2" /> Initialize Mandate
+          </button>
+        </div>
       </div>
 
       <div className="card bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 p-6 overflow-hidden">

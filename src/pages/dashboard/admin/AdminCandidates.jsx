@@ -1,6 +1,23 @@
 import { useState, useMemo } from 'react'
 import { Search, Eye, FileText, ChevronRight, Activity, Filter, ShieldCheck } from 'lucide-react'
 import { candidates, statusColors, statusLabels } from '../../../data/candidates'
+import DataPortal from '../../../components/DataPortal'
+
+const CANDIDATE_COLUMNS = [
+  { label: 'Full Name', accessor: 'name' },
+  { label: 'Role', accessor: 'role' },
+  { label: 'Location', accessor: 'location' },
+  { label: 'Experience (yrs)', accessor: 'experience' },
+  { label: 'Qualification', accessor: 'qualification' },
+  { label: 'Skills', accessor: c => c.skills?.join(', ') || '' },
+  { label: 'Expected Salary', accessor: 'expectedSalary' },
+  { label: 'Notice Period (days)', accessor: 'noticePeriod' },
+  { label: 'Email', accessor: 'email' },
+  { label: 'Phone', accessor: 'phone' },
+  { label: 'Status', accessor: c => statusLabels[c.status] || c.status },
+  { label: 'Resume Available', accessor: c => c.resumeAvailable ? 'Yes' : 'No' },
+  { label: 'Open to Work', accessor: c => c.openToWork ? 'Yes' : 'No' },
+]
 
 const premiumStatusColors = {
   applied: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700',
@@ -39,6 +56,7 @@ export default function AdminCandidates() {
           <h1 className="text-3xl md:text-4xl font-display font-bold text-brand-charcoal dark:text-white tracking-tight">Candidate Architecture</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">{candidates.length} active verified profiles</p>
         </div>
+        <DataPortal title="Candidate Architecture" rows={candidates} columns={CANDIDATE_COLUMNS} />
       </div>
 
       {/* Filters */}
