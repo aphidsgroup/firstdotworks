@@ -88,9 +88,12 @@ export default function AdminApplications() {
                     <td className="td px-6 py-4"><span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${premiumStatusColors[a.status]}`}>{statusLabels[a.status]}</span></td>
                     <td className="td px-6 py-4 text-xs font-medium text-gray-500 max-w-[200px] truncate">{a.recruiterNote || '—'}</td>
                     <td className="td px-6 py-4">
-                      <select className="select text-[10px] font-bold uppercase tracking-wider py-1.5 h-9 bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800 w-36">
-                        {stages.map(s => <option key={s} value={s} selected={s === a.status}>{statusLabels[s]}</option>)}
-                      </select>
+                      <div className="flex items-center gap-2">
+                        <select className="select text-[10px] font-bold uppercase tracking-wider py-1.5 h-9 bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800 w-32">
+                          {stages.map(s => <option key={s} value={s} selected={s === a.status}>{statusLabels[s]}</option>)}
+                        </select>
+                        <button className="h-9 px-3 rounded-lg bg-brand-orange/10 text-brand-orange border border-brand-orange/20 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-orange hover:text-white transition-all">Sync</button>
+                      </div>
                     </td>
                   </tr>
                 )

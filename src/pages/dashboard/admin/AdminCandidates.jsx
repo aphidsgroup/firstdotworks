@@ -148,8 +148,8 @@ export default function AdminCandidates() {
                 </select>
 
                 <div className="flex gap-3">
-                  <button className="btn-primary shadow-glow-cyan flex-1 justify-center text-xs">Route</button>
-                  <button className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 font-bold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-1 text-xs text-center uppercase tracking-wider">Log Note</button>
+                  <button className="btn-primary shadow-glow-cyan flex-1 justify-center text-xs">Confirm Transition</button>
+                  <button className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 font-bold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-1 text-xs text-center uppercase tracking-wider">Log Telemetry</button>
                 </div>
               </div>
             </div>

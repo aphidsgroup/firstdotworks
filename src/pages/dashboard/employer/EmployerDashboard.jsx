@@ -23,7 +23,7 @@ export default function EmployerDashboard() {
           <h1 className="text-2xl font-bold text-brand-charcoal dark:text-white">Employer Dashboard</h1>
           <p className="text-sm text-gray-400">TechCorp Solutions — Hiring overview</p>
         </div>
-        <Link to="/dashboard/employer/jobs" className="btn-primary btn-sm"><Plus size={15} /> Post New Job</Link>
+        <Link to="/dashboard/employer/jobs" className="btn-primary btn-sm"><Plus size={15} /> Initialize Mandate</Link>
       </div>
 
       {/* KPIs */}
@@ -100,8 +100,8 @@ export default function EmployerDashboard() {
                   <td className="td"><span className={`badge ${statusColors[c.status]}`}>{statusLabels[c.status]}</span></td>
                   <td className="td">
                     <div className="flex gap-1.5">
-                      <button className="btn-primary btn-sm text-xs">Shortlist</button>
-                      <button className="btn-ghost btn-sm text-xs text-red-500">Reject</button>
+                      <button className="btn-primary btn-sm text-xs">Advance Node</button>
+                      <button className="btn-ghost btn-sm text-xs text-red-500">Terminate Cycle</button>
                     </div>
                   </td>
                 </tr>

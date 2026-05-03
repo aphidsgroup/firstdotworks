@@ -12,11 +12,15 @@ function PostJobModal({ onClose }) {
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="bg-white dark:bg-dark-card rounded-2xl shadow-card-lg w-full max-w-xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-surface-border dark:border-dark-border">
-          <h2 className="text-lg font-bold text-brand-charcoal dark:text-white">Post New Job</h2>
+          <h2 className="text-lg font-bold text-brand-charcoal dark:text-white text-center w-full uppercase tracking-widest text-[14px]">Initialize New Mandate</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface text-gray-400"><X size={18} /></button>
         </div>
         {success ? (
-          <div className="p-12 text-center"><CheckCircle size={48} className="text-green-500 mx-auto mb-3" /><h3 className="text-lg font-bold dark:text-white">Job Posted!</h3></div>
+          <div className="p-12 text-center shadow-glow-cyan bg-brand-cyan/5 rounded-b-2xl animate-fade-in">
+            <CheckCircle size={48} className="text-brand-cyan mx-auto mb-3" />
+            <h3 className="text-lg font-bold dark:text-white uppercase tracking-widest">Mandate Published!</h3>
+            <p className="text-sm text-gray-400 mt-2">Broadcast sequence initiated successfully.</p>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div>
@@ -59,7 +63,7 @@ function PostJobModal({ onClose }) {
               <label className="label">Description *</label>
               <textarea required rows={4} className="input resize-none" value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
             </div>
-            <div className="flex gap-3"><button type="submit" className="btn-primary">Post Job</button><button type="button" onClick={onClose} className="btn-ghost">Cancel</button></div>
+            <div className="flex gap-3"><button type="submit" className="btn-primary flex-1 shadow-glow-cyan">Publish Mandate</button><button type="button" onClick={onClose} className="btn-ghost px-6 border border-gray-100 dark:border-gray-800">Abort</button></div>
           </form>
         )}
       </div>
@@ -77,7 +81,7 @@ export default function EmployerJobs() {
           <h1 className="text-2xl font-bold text-brand-charcoal dark:text-white">My Job Postings</h1>
           <p className="text-sm text-gray-400">TechCorp Solutions — {compJobs.length} active listings</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn-primary btn-sm"><Plus size={16} /> Post New Job</button>
+        <button onClick={() => setShowModal(true)} className="btn-primary shadow-glow-cyan btn-sm"><Plus size={16} className="mr-1" /> Initialize Mandate</button>
       </div>
       <div className="card overflow-hidden p-0">
         <div className="table-wrapper">
