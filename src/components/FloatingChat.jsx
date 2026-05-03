@@ -37,7 +37,7 @@ export default function FloatingChat() {
 
   if (!chatEnabled && !whatsappEnabled) return null;
 
-  const whatsappMessageStr = encodeURIComponent(welcomeMessage || "Hi, I have a query regarding your services.");
+  const whatsappMessageStr = encodeURIComponent("Hi, I have a query regarding Firstdot Works.");
   const cleanNumber = whatsappNumber?.replace(/[^0-9]/g, '') || "919941875131";
   const whatsappUrl = `https://wa.me/${cleanNumber}?text=${whatsappMessageStr}`;
 
@@ -53,7 +53,7 @@ export default function FloatingChat() {
       
       {/* Live Chat Window */}
       {chatEnabled && (
-        <div className={`bg-white dark:bg-[#0B0F19] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-card-lg flex flex-col transition-all duration-500 pointer-events-auto transform origin-bottom-right 
+        <div className={`absolute bottom-20 right-0 bg-white dark:bg-[#0B0F19] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-card-lg flex flex-col transition-all duration-500 pointer-events-auto transform origin-bottom-right 
           w-[calc(100vw-32px)] sm:w-96 max-h-[calc(100vh-120px)]
           ${isChatOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-10 pointer-events-none'}`}>
           {/* Header */}
@@ -118,7 +118,7 @@ export default function FloatingChat() {
 
       {/* Live Chat Automated Bubble (Small Popup) */}
       {chatEnabled && (
-        <div className={`bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl shadow-card-lg p-4 flex flex-col gap-2 transition-all duration-500 pointer-events-auto transform origin-bottom-right w-64 ${showAutoMessage && !isChatOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-4 pointer-events-none'}`}>
+        <div className={`absolute bottom-20 right-0 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl shadow-card-lg p-4 flex flex-col gap-2 transition-all duration-500 pointer-events-auto transform origin-bottom-right w-64 ${showAutoMessage && !isChatOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-4 pointer-events-none'}`}>
           <div className="flex justify-between items-start">
              <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-brand-cyan/10 flex items-center justify-center text-brand-cyan relative flex-shrink-0">
