@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { useEffect } from 'react'
+import FloatingChat from './components/FloatingChat'
+
 
 // Public layout wrapper
 import Navbar from './components/layout/Navbar'
@@ -141,6 +143,7 @@ export default function App() {
         <BrowserRouter>
           <ScrollToTop />
           <AppRoutes />
+          <FloatingChat />
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
