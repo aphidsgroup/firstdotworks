@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { MessageCircle, X, Send, Smile, Paperclip } from 'lucide-react';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 import { useChat } from '../context/ChatContext';
 
 export default function FloatingChat() {
+  const { pathname } = useLocation();
   const { settings } = useSiteSettings();
   const { sendMessage, getSessionMessages, anonymousId } = useChat();
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -28,6 +30,7 @@ export default function FloatingChat() {
     }
   }, [sessionMessages.length]);
 
+  if (pathname.startsWith('/dashboard/admin')) return null;
   if (!settings) return null;
 
   const { chatEnabled, whatsappEnabled, agentName, whatsappNumber, welcomeMessage } = settings;
