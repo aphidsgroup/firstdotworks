@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Search, Eye, FileText, ChevronRight, Activity, Filter, ShieldCheck } from 'lucide-react'
+import { Search, Eye, FileText, ChevronRight, Activity, Filter, ShieldCheck, Trash2, Download, CheckSquare, Square, MoreHorizontal, X } from 'lucide-react'
 import { candidates, statusColors, statusLabels } from '../../../data/candidates'
 import DataPortal from '../../../components/DataPortal'
 
@@ -36,6 +36,7 @@ export default function AdminCandidates() {
   const [locFilter, setLocFilter] = useState('')
   const [joinedToday, setJoinedToday] = useState(false)
   const [selected, setSelected] = useState(null)
+  const [selectedIds, setSelectedIds] = useState([])
 
   const filtered = useMemo(() => {
     return candidates.filter(c => {
@@ -50,6 +51,45 @@ export default function AdminCandidates() {
       return matchQ && matchStatus && matchLoc && matchToday
     })
   }, [search, statusFilter, locFilter, joinedToday])
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filtered.length) {
+      setSelectedIds([])
+    } else {
+      setSelectedIds(filtered.map(c => c.id))
+    }
+  }
+
+  const toggleSelect = (id, e) => {
+    e.stopPropagation()
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+  }
+
+  const handleBulkExport = () => {
+    const selectedData = candidates.filter(c => selectedIds.includes(c.id))
+    const headers = CANDIDATE_COLUMNS.map(col => col.label).join(',')
+    const rows = selectedData.map(c => 
+      CANDIDATE_COLUMNS.map(col => {
+        const val = typeof col.accessor === 'function' ? col.accessor(c) : c[col.accessor]
+        return `"${val}"`
+      }).join(',')
+    ).join('\n')
+    
+    const csvContent = `data:text/csv;charset=utf-8,${headers}\n${rows}`
+    const link = document.createElement('a')
+    link.setAttribute('href', encodeURI(csvContent))
+    link.setAttribute('download', 'candidates_export.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const handleBulkDelete = () => {
+    if (window.confirm(`Are you sure you want to delete ${selectedIds.length} records?`)) {
+      alert(`Simulated deletion of IDs: ${selectedIds.join(', ')}`)
+      setSelectedIds([])
+    }
+  }
 
   return (
     <div className="space-y-6 animate-fade-in pb-8">
@@ -95,7 +135,14 @@ export default function AdminCandidates() {
           <div className="table-wrapper mb-0">
             <table className="table w-full">
               <thead className="bg-gray-50 dark:bg-dark-bg border-b border-gray-100 dark:border-gray-800/50">
-                <tr>{['Identity', 'Role', 'Cycles', 'Sector', 'State', 'Fidelity', ''].map(h => <th key={h} className="th px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">{h}</th>)}</tr>
+                <tr>
+                  <th className="th px-6 py-3 w-10">
+                    <button onClick={toggleSelectAll} className="text-gray-400 hover:text-brand-cyan transition-colors">
+                      {selectedIds.length === filtered.length && filtered.length > 0 ? <CheckSquare size={16} /> : <Square size={16} />}
+                    </button>
+                  </th>
+                  {['Identity', 'Role', 'Cycles', 'Sector', 'State', 'Fidelity', ''].map(h => <th key={h} className="th px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">{h}</th>)}
+                </tr>
               </thead>
               <tbody className="bg-white dark:bg-dark-surface divide-y divide-gray-100 dark:divide-gray-800/50">
                 {filtered.map(c => (
@@ -104,6 +151,11 @@ export default function AdminCandidates() {
                     className={`tr-hover cursor-pointer transition-colors ${selected?.id === c.id ? 'bg-brand-cyan/5 dark:bg-brand-cyan/5' : 'hover:bg-gray-50 dark:hover:bg-dark-bg'}`}
                     onClick={() => setSelected(c)}
                   >
+                    <td className="td px-6 py-4">
+                      <button onClick={(e) => toggleSelect(c.id, e)} className={`${selectedIds.includes(c.id) ? 'text-brand-cyan' : 'text-gray-300 dark:text-gray-600'} hover:text-brand-cyan transition-colors`}>
+                        {selectedIds.includes(c.id) ? <CheckSquare size={16} /> : <Square size={16} />}
+                      </button>
+                    </td>
                     <td className="td px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-brand-cyan/10 flex items-center justify-center text-brand-cyan text-sm font-bold flex-shrink-0">
@@ -192,6 +244,36 @@ export default function AdminCandidates() {
           )}
         </div>
       </div>
+
+      {/* Bulk Action Toolbar */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-brand-charcoal dark:bg-white text-white dark:text-brand-charcoal px-6 py-4 rounded-2xl shadow-2xl z-50 flex items-center gap-6 animate-slide-up border border-white/10 dark:border-brand-charcoal/10">
+          <div className="flex items-center gap-3 pr-6 border-r border-white/20 dark:border-brand-charcoal/20">
+            <span className="text-sm font-bold">{selectedIds.length} items selected</span>
+            <button onClick={() => setSelectedIds([])} className="p-1 hover:bg-white/10 dark:hover:bg-brand-charcoal/10 rounded-lg transition-colors"><X size={16} /></button>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button onClick={handleBulkExport} className="flex items-center gap-2 px-4 py-2 bg-white/10 dark:bg-brand-charcoal/10 hover:bg-white/20 dark:hover:bg-brand-charcoal/20 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+              <Download size={14} /> Export CSV
+            </button>
+            <div className="relative group">
+              <button className="flex items-center gap-2 px-4 py-2 bg-white/10 dark:bg-brand-charcoal/10 hover:bg-white/20 dark:hover:bg-brand-charcoal/20 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+                <ShieldCheck size={14} /> Mark Status
+              </button>
+              {/* Simple Tooltip-like Dropdown */}
+              <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-48 bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 text-brand-charcoal dark:text-white overflow-hidden">
+                 {stages.map(s => (
+                   <button key={s} onClick={() => { alert(`Bulk marked ${selectedIds.length} as ${s}`); setSelectedIds([]) }} className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors">{statusLabels[s]}</button>
+                 ))}
+              </div>
+            </div>
+            <button onClick={handleBulkDelete} className="flex items-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-rose-500/20">
+              <Trash2 size={14} /> Bulk Delete
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

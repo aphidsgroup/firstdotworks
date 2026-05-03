@@ -13,6 +13,9 @@ export default function AdminSettings() {
     chatEnabled: settings.chatEnabled,
     whatsappEnabled: settings.whatsappEnabled,
     agentName: settings.agentName,
+    agentTitle: settings.agentTitle,
+    agentStatus: settings.agentStatus,
+    widgetColor: settings.widgetColor,
     whatsappNumber: settings.whatsappNumber,
     welcomeMessage: settings.welcomeMessage,
   })
@@ -85,7 +88,26 @@ export default function AdminSettings() {
                   <input type="text" required className="input bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800" value={form.agentName} onChange={e => setForm({...form, agentName: e.target.value})} />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">WhatsApp Number (with country code)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Agent Title / Role</label>
+                  <input type="text" required className="input bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800" value={form.agentTitle} onChange={e => setForm({...form, agentTitle: e.target.value})} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Agent Status</label>
+                  <select className="select bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800" value={form.agentStatus} onChange={e => setForm({...form, agentStatus: e.target.value})}>
+                    <option value="online">Online</option>
+                    <option value="away">Away / Busy</option>
+                    <option value="offline">Offline</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Widget Accent Color</label>
+                  <div className="flex gap-3">
+                    <input type="color" className="w-11 h-11 rounded-xl cursor-pointer bg-transparent border-none" value={form.widgetColor} onChange={e => setForm({...form, widgetColor: e.target.value})} />
+                    <input type="text" className="input flex-1 bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800 uppercase font-mono text-xs" value={form.widgetColor} onChange={e => setForm({...form, widgetColor: e.target.value})} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">WhatsApp Number</label>
                   <input type="text" required className="input bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800" value={form.whatsappNumber} onChange={e => setForm({...form, whatsappNumber: e.target.value})} />
                 </div>
                 <div className="sm:col-span-2">

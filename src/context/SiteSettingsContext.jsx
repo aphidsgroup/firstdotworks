@@ -14,7 +14,10 @@ const defaultSettings = {
   // Chat Configuration
   chatEnabled: true,
   whatsappEnabled: true,
-  agentName: 'Deepa from Firstdotworks',
+  agentName: 'Deepa',
+  agentTitle: 'Firstdotworks Support',
+  agentStatus: 'online', // online, away, offline
+  widgetColor: '#00D1FF', // brand-cyan
   whatsappNumber: '919941875131',
   welcomeMessage: 'Hello, I am Deepa from Firstdotworks. How can I help you today?',
 }

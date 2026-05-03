@@ -33,7 +33,7 @@ export default function FloatingChat() {
   if (pathname.startsWith('/dashboard/admin')) return null;
   if (!settings) return null;
 
-  const { chatEnabled, whatsappEnabled, agentName, whatsappNumber, welcomeMessage } = settings;
+  const { chatEnabled, whatsappEnabled, agentName, agentTitle, agentStatus, widgetColor, whatsappNumber, welcomeMessage } = settings;
 
   if (!chatEnabled && !whatsappEnabled) return null;
 
@@ -48,6 +48,18 @@ export default function FloatingChat() {
     setInputText('');
   };
 
+  const statusColors = {
+    online: 'bg-green-500',
+    away: 'bg-brand-orange',
+    offline: 'bg-gray-400'
+  };
+
+  const statusLabels = {
+    online: 'Active',
+    away: 'Away',
+    offline: 'Offline'
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3 pointer-events-none">
       
@@ -57,15 +69,15 @@ export default function FloatingChat() {
           w-[calc(100vw-32px)] sm:w-96 max-h-[calc(100vh-160px)]
           ${isChatOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-10 pointer-events-none'}`}>
           {/* Header */}
-          <div className="bg-brand-cyan p-5 rounded-t-3xl flex items-center justify-between">
+          <div className="p-5 rounded-t-3xl flex items-center justify-between" style={{ backgroundColor: widgetColor }}>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white relative">
                 <span className="font-bold">{agentName?.charAt(0) || 'A'}</span>
-                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-brand-cyan rounded-full"></span>
+                <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 border-2 rounded-full ${statusColors[agentStatus]}`} style={{ borderColor: widgetColor }}></span>
               </div>
               <div>
                 <h4 className="text-white font-bold text-sm">{agentName}</h4>
-                <p className="text-white/70 text-[10px] uppercase tracking-widest font-bold">Online · <span className="text-white">Active</span></p>
+                <p className="text-white/70 text-[10px] uppercase tracking-widest font-bold">{agentTitle} · <span className="text-white">{statusLabels[agentStatus]}</span></p>
               </div>
             </div>
             <button onClick={() => setIsChatOpen(false)} className="text-white/80 hover:text-white transition-colors">
@@ -75,13 +87,14 @@ export default function FloatingChat() {
 
           {/* Messages Area */}
           <div ref={scrollRef} className="flex-1 p-6 h-80 overflow-y-auto bg-gray-50/50 dark:bg-dark-bg/50 flex flex-col gap-4">
-            <div className="bg-brand-cyan/10 border border-brand-cyan/20 rounded-2xl p-3 max-w-[85%] self-start">
-              <p className="text-xs font-bold text-brand-cyan uppercase tracking-widest mb-1">{agentName}</p>
+            <div className="rounded-2xl p-3 max-w-[85%] self-start" style={{ backgroundColor: `${widgetColor}15`, border: `1px solid ${widgetColor}30` }}>
+              <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: widgetColor }}>{agentName}</p>
               <p className="text-sm text-brand-charcoal dark:text-gray-200 leading-relaxed">{welcomeMessage}</p>
             </div>
             
             {sessionMessages.map((msg) => (
-              <div key={msg.id} className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.senderType === 'user' ? 'bg-white dark:bg-dark-surface self-end border border-gray-100 dark:border-gray-800 text-brand-charcoal dark:text-gray-200' : 'bg-brand-cyan/10 border border-brand-cyan/20 self-start text-brand-charcoal dark:text-gray-200'}`}>
+              <div key={msg.id} className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.senderType === 'user' ? 'bg-white dark:bg-dark-surface self-end border border-gray-100 dark:border-gray-800 text-brand-charcoal dark:text-gray-200' : 'self-start text-brand-charcoal dark:text-gray-200'}`}
+                style={msg.senderType !== 'user' ? { backgroundColor: `${widgetColor}15`, border: `1px solid ${widgetColor}30` } : {}}>
                 {msg.text}
                 <div className="text-[10px] opacity-40 font-bold mt-1 text-right">
                   {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -108,7 +121,7 @@ export default function FloatingChat() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
               />
-              <button type="submit" className="w-10 h-10 rounded-xl bg-brand-cyan flex items-center justify-center text-white shadow-glow-cyan hover:scale-105 transition-all">
+              <button type="submit" className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg hover:scale-105 transition-all" style={{ backgroundColor: widgetColor, boxShadow: `0 8px 20px ${widgetColor}40` }}>
                 <Send size={18} />
               </button>
             </form>
@@ -121,9 +134,9 @@ export default function FloatingChat() {
         <div className={`absolute bottom-36 right-0 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl shadow-card-lg p-4 flex flex-col gap-2 transition-all duration-500 pointer-events-auto transform origin-bottom-right w-64 ${showAutoMessage && !isChatOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-4 pointer-events-none'}`}>
           <div className="flex justify-between items-start">
              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-brand-cyan/10 flex items-center justify-center text-brand-cyan relative flex-shrink-0">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-white relative flex-shrink-0" style={{ backgroundColor: widgetColor }}>
                   <span className="text-[10px] font-bold">{agentName?.charAt(0) || 'A'}</span>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-500 border border-white dark:border-dark-card rounded-full"></span>
+                  <span className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 border border-white dark:border-dark-card rounded-full ${statusColors[agentStatus]}`}></span>
                 </div>
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{agentName}</p>
              </div>
@@ -132,7 +145,7 @@ export default function FloatingChat() {
           <div className="bg-gray-50 dark:bg-dark-bg rounded-xl rounded-tl-none p-3 mt-1">
             <p className="text-sm font-medium text-brand-charcoal dark:text-gray-200 leading-snug">{welcomeMessage}</p>
           </div>
-          <button onClick={() => { setShowAutoMessage(false); setIsChatOpen(true); }} className="text-[10px] font-bold text-brand-cyan hover:text-brand-orange uppercase tracking-widest mt-1 text-left transition-colors">Reply via Live Chat →</button>
+          <button onClick={() => { setShowAutoMessage(false); setIsChatOpen(true); }} className="text-[10px] font-bold hover:text-brand-orange uppercase tracking-widest mt-1 text-left transition-colors" style={{ color: widgetColor }}>Reply via Live Chat →</button>
         </div>
       )}
 
@@ -143,7 +156,8 @@ export default function FloatingChat() {
         {chatEnabled && (
           <button 
             onClick={() => { setIsChatOpen(!isChatOpen); setShowAutoMessage(false); }}
-            className={`w-14 h-14 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 relative group ${isChatOpen ? 'bg-gray-800 hover:bg-gray-700' : 'bg-brand-cyan hover:bg-brand-cyan/90 hover:-translate-y-1 hover:shadow-glow-cyan'}`}
+            className={`w-14 h-14 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 relative group ${isChatOpen ? 'bg-gray-800 hover:bg-gray-700' : 'hover:-translate-y-1'}`}
+            style={!isChatOpen ? { backgroundColor: widgetColor, boxShadow: `0 8px 25px ${widgetColor}60` } : {}}
             aria-label="Toggle Live Chat"
           >
             {isChatOpen ? <X size={24} /> : <MessageCircle size={28} />}

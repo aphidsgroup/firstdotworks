@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Edit, Eye, Trash2, Search, Filter, X, CheckCircle, Briefcase, Activity } from 'lucide-react'
+import { Plus, Edit, Eye, Trash2, Search, Filter, X, CheckCircle, Briefcase, Activity, Download, CheckSquare, Square, ShieldCheck } from 'lucide-react'
 import { jobs, formatSalary } from '../../../data/jobs'
 import DataPortal from '../../../components/DataPortal'
 
@@ -155,7 +155,47 @@ export default function AdminJobs() {
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [selectedJob, setSelectedJob] = useState(null)
+  const [selectedIds, setSelectedIds] = useState([])
   const filtered = jobs.filter(j => j.title.toLowerCase().includes(search.toLowerCase()) || j.company.toLowerCase().includes(search.toLowerCase()))
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filtered.length) {
+      setSelectedIds([])
+    } else {
+      setSelectedIds(filtered.map(j => j.id))
+    }
+  }
+
+  const toggleSelect = (id, e) => {
+    e.stopPropagation()
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+  }
+
+  const handleBulkExport = () => {
+    const selectedData = jobs.filter(j => selectedIds.includes(j.id))
+    const headers = JOB_COLUMNS.map(col => col.label).join(',')
+    const rows = selectedData.map(j => 
+      JOB_COLUMNS.map(col => {
+        const val = typeof col.accessor === 'function' ? col.accessor(j) : j[col.accessor]
+        return `"${val}"`
+      }).join(',')
+    ).join('\n')
+    
+    const csvContent = `data:text/csv;charset=utf-8,${headers}\n${rows}`
+    const link = document.createElement('a')
+    link.setAttribute('href', encodeURI(csvContent))
+    link.setAttribute('download', 'jobs_export.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const handleBulkDelete = () => {
+    if (window.confirm(`Terminate ${selectedIds.length} mandates?`)) {
+      alert(`Simulated termination of Mandate IDs: ${selectedIds.join(', ')}`)
+      setSelectedIds([])
+    }
+  }
 
   const handleEdit = (job) => {
     setSelectedJob(job)
@@ -202,6 +242,11 @@ export default function AdminJobs() {
           <table className="table w-full">
             <thead className="bg-gray-50 dark:bg-dark-bg border-b border-gray-100 dark:border-gray-800/50">
               <tr>
+                <th className="th px-6 py-3 w-10">
+                  <button onClick={toggleSelectAll} className="text-gray-400 hover:text-brand-cyan transition-colors">
+                    {selectedIds.length === filtered.length && filtered.length > 0 ? <CheckSquare size={16} /> : <Square size={16} />}
+                  </button>
+                </th>
                 {['Role ID', 'Entity', 'Sector', 'Mode', 'Compensation', 'Nodes', 'Status', 'Execute'].map(h => (
                   <th key={h} className="th px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">{h}</th>
                 ))}
@@ -209,7 +254,12 @@ export default function AdminJobs() {
             </thead>
             <tbody className="bg-white dark:bg-dark-surface divide-y divide-gray-100 dark:divide-gray-800/50">
               {filtered.map(job => (
-                <tr key={job.id} className="tr-hover hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors">
+                <tr key={job.id} className={`tr-hover transition-colors ${selectedIds.includes(job.id) ? 'bg-brand-cyan/5' : 'hover:bg-gray-50 dark:hover:bg-dark-bg'}`}>
+                  <td className="td px-6 py-4">
+                    <button onClick={(e) => toggleSelect(job.id, e)} className={`${selectedIds.includes(job.id) ? 'text-brand-cyan' : 'text-gray-300 dark:text-gray-600'} hover:text-brand-cyan transition-colors`}>
+                      {selectedIds.includes(job.id) ? <CheckSquare size={16} /> : <Square size={16} />}
+                    </button>
+                  </td>
                   <td className="td px-6 py-4">
                     <div>
                       <p className="font-bold text-brand-charcoal dark:text-white text-sm">{job.title}</p>
@@ -235,6 +285,35 @@ export default function AdminJobs() {
           </table>
         </div>
       </div>
+
+      {/* Bulk Action Toolbar */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-brand-charcoal dark:bg-white text-white dark:text-brand-charcoal px-6 py-4 rounded-2xl shadow-2xl z-50 flex items-center gap-6 animate-slide-up border border-white/10 dark:border-brand-charcoal/10">
+          <div className="flex items-center gap-3 pr-6 border-r border-white/20 dark:border-brand-charcoal/20">
+            <span className="text-sm font-bold">{selectedIds.length} mandates selected</span>
+            <button onClick={() => setSelectedIds([])} className="p-1 hover:bg-white/10 dark:hover:bg-brand-charcoal/10 rounded-lg transition-colors"><X size={16} /></button>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button onClick={handleBulkExport} className="flex items-center gap-2 px-4 py-2 bg-white/10 dark:bg-brand-charcoal/10 hover:bg-white/20 dark:hover:bg-brand-charcoal/20 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+              <Download size={14} /> Export CSV
+            </button>
+            <div className="relative group">
+              <button className="flex items-center gap-2 px-4 py-2 bg-white/10 dark:bg-brand-charcoal/10 hover:bg-white/20 dark:hover:bg-brand-charcoal/20 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+                <ShieldCheck size={14} /> Transition Status
+              </button>
+              <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-48 bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 text-brand-charcoal dark:text-white">
+                 {['published', 'draft', 'closed'].map(s => (
+                   <button key={s} onClick={() => { alert(`Bulk transitioned ${selectedIds.length} to ${s}`); setSelectedIds([]) }} className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors">{s}</button>
+                 ))}
+              </div>
+            </div>
+            <button onClick={handleBulkDelete} className="flex items-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-rose-500/20">
+              <Trash2 size={14} /> Terminate
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
