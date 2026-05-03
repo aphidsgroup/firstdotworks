@@ -134,6 +134,7 @@ function JobPostingModal({ onClose, job = null }) {
 }
 
 export default function AdminJobs() {
+  const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [selectedJob, setSelectedJob] = useState(null)
   const filtered = jobs.filter(j => j.title.toLowerCase().includes(search.toLowerCase()) || j.company.toLowerCase().includes(search.toLowerCase()))
