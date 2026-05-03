@@ -182,7 +182,7 @@ export default function DashboardLayout({ role }) {
         <div className="absolute top-0 right-0 w-[800px] h-[600px] opacity-[0.02] dark:opacity-[0.05] pointer-events-none bg-hero-pattern" />
 
         {/* Top bar */}
-        <header className="h-20 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-surface-border dark:border-dark-border flex items-center px-6 gap-4 flex-shrink-0 z-10">
+        <header className="h-20 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-surface-border dark:border-dark-border flex items-center px-6 gap-4 flex-shrink-0 z-[40]">
           {/* Mobile menu button */}
           <button
             className="md:hidden p-2 -ml-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-dark-surface transition-colors"

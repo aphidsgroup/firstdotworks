@@ -53,7 +53,9 @@ export default function FloatingChat() {
       
       {/* Live Chat Window */}
       {chatEnabled && (
-        <div className={`bg-white dark:bg-[#0B0F19] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-card-lg flex flex-col transition-all duration-500 pointer-events-auto transform origin-bottom-right w-80 sm:w-96 ${isChatOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-10 pointer-events-none'}`}>
+        <div className={`bg-white dark:bg-[#0B0F19] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-card-lg flex flex-col transition-all duration-500 pointer-events-auto transform origin-bottom-right 
+          w-[calc(100vw-32px)] sm:w-96 max-h-[calc(100vh-120px)]
+          ${isChatOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-10 pointer-events-none'}`}>
           {/* Header */}
           <div className="bg-brand-cyan p-5 rounded-t-3xl flex items-center justify-between">
             <div className="flex items-center gap-3">
