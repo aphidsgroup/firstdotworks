@@ -27,7 +27,7 @@ export default function Navbar() {
   }, [])
 
   return (
-    <header className={`sticky top-0 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-surface-border dark:border-dark-border transition-all duration-300 ${scrolled ? 'h-20' : 'h-32'} ${open ? 'z-[250]' : 'z-50'}`}>
+    <header className={`sticky top-0 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-surface-border dark:border-dark-border transition-all duration-300 ${scrolled ? 'h-20' : 'h-32'} ${open ? 'z-[9999]' : 'z-50'}`}>
       <div className="container-xl h-full">
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
@@ -113,10 +113,15 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {open && (
-          <div className="lg:hidden fixed inset-0 bg-white dark:bg-dark-bg z-[100] animate-fade-in flex flex-col">
-            <div className="h-32 flex items-center px-6 border-b border-surface-border dark:border-dark-border">
-               <img src="/logo.png" alt="Firstdot Works" className="h-28 w-auto dark:invert dark:brightness-200 scale-125 object-contain" />
-            </div>
+          <div className="lg:hidden fixed inset-0 z-[9999] animate-fade-in flex flex-col">
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-brand-charcoal/60 backdrop-blur-md" onClick={() => setOpen(false)} />
+            
+            {/* Menu Content */}
+            <div className="relative w-full h-full bg-white dark:bg-dark-bg flex flex-col shadow-2xl">
+              <div className="h-32 flex items-center px-6 border-b border-surface-border dark:border-dark-border bg-white dark:bg-dark-bg">
+                 <img src="/logo.png" alt="Firstdot Works" className="h-28 w-auto dark:invert dark:brightness-200 scale-125 object-contain" />
+              </div>
             <nav className="flex-1 overflow-y-auto py-8 px-6 flex flex-col gap-2">
               {navLinks.map(l => (
                 <NavLink

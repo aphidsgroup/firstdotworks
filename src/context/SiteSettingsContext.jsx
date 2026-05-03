@@ -19,7 +19,7 @@ const defaultSettings = {
   agentStatus: 'online', // online, away, offline
   widgetColor: '#00D1FF', // brand-cyan
   whatsappNumber: '919941875131',
-  welcomeMessage: 'Hello, I am Deepa from Firstdotworks. How can I help you today?',
+  welcomeMessage: 'Hello, I am Deepa. How can I help you today?',
 }
 
 export function SiteSettingsProvider({ children }) {
@@ -27,7 +27,13 @@ export function SiteSettingsProvider({ children }) {
     const saved = localStorage.getItem('site_settings')
     if (saved) {
       try {
-        return { ...defaultSettings, ...JSON.parse(saved) }
+        let parsed = JSON.parse(saved)
+        // Auto-sanitize old values for existing users
+        if (parsed.agentName === 'Deepa from Firstdotworks') parsed.agentName = 'Deepa'
+        if (parsed.welcomeMessage?.includes('Deepa from Firstdotworks')) {
+          parsed.welcomeMessage = parsed.welcomeMessage.replace('Deepa from Firstdotworks', 'Deepa')
+        }
+        return { ...defaultSettings, ...parsed }
       } catch (e) {
         return defaultSettings
       }

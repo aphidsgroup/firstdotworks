@@ -168,7 +168,7 @@ export default function DashboardLayout({ role }) {
 
       {/* Mobile sidebar overlay */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-[200] flex md:hidden">
+        <div className="fixed inset-0 z-[9999] flex md:hidden">
           <div className="absolute inset-0 bg-brand-charcoal/80 backdrop-blur-sm transition-opacity" onClick={() => setMobileOpen(false)} />
           <div className="relative z-10 flex flex-col h-full animate-fade-in shadow-2xl">
             <Sidebar mobile />
