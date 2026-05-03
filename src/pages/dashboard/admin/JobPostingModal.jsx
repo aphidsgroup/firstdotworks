@@ -91,7 +91,7 @@ export function JobPostingModal({ onClose }) {
         {/* Footer */}
         <div className="px-8 py-6 border-t border-gray-100 dark:border-gray-800/50 flex items-center justify-end gap-4 bg-gray-50/30 dark:bg-dark-bg/30">
           <button onClick={onClose} className="px-6 py-2.5 rounded-xl text-gray-500 font-bold uppercase tracking-wider text-xs hover:text-brand-charcoal dark:hover:text-white transition-colors">Discard</button>
-          <button className="btn-primary shadow-glow-cyan px-8 py-3 h-12 text-xs">Execute Initialization</button>
+          <button className="btn-primary shadow-glow-cyan px-8 py-3 h-12 text-xs">Publish Mandate</button>
         </div>
       </div>
     </div>

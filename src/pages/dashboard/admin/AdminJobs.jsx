@@ -36,7 +36,7 @@ function JobPostingModal({ onClose }) {
               <div className="w-20 h-20 rounded-full bg-brand-cyan/10 flex items-center justify-center mb-6">
                 <CheckCircle size={40} className="text-brand-cyan" />
               </div>
-              <h3 className="text-2xl font-display font-bold text-brand-charcoal dark:text-white mb-2">Mandate Deployed!</h3>
+              <h3 className="text-2xl font-display font-bold text-brand-charcoal dark:text-white mb-2">Mandate Published!</h3>
               <p className="text-gray-400">The job listing has been successfully broadcasted to the network.</p>
             </div>
           ) : (
@@ -51,7 +51,7 @@ function JobPostingModal({ onClose }) {
                   <input required type="text" placeholder="Company" className="input bg-gray-50 dark:bg-dark-surface border-gray-200 dark:border-gray-800 focus:border-brand-cyan/50 focus:ring-brand-cyan/20" value={form.company} onChange={e => setForm({...form, company: e.target.value})} />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 block">Deployment Sector *</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 block">Mandate Location *</label>
                   <input required type="text" placeholder="Chennai, TN" className="input bg-gray-50 dark:bg-dark-surface border-gray-200 dark:border-gray-800 focus:border-brand-cyan/50 focus:ring-brand-cyan/20" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
                 </div>
                 <div>
@@ -110,7 +110,7 @@ function JobPostingModal({ onClose }) {
         {!success && (
           <div className="p-6 border-t border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-dark-bg/50 backdrop-blur-md relative z-10 flex gap-3 justify-end">
             <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Abort</button>
-            <button type="submit" form="job-form" className="btn-primary shadow-glow-cyan px-8">Execute Deployment</button>
+            <button type="submit" form="job-form" className="btn-primary shadow-glow-cyan px-8">Publish Mandate</button>
           </div>
         )}
       </div>
@@ -133,7 +133,7 @@ export default function AdminJobs() {
             <Activity size={14} className="animate-pulse-slow" /> Active Mandates
           </div>
           <h1 className="text-3xl md:text-4xl font-display font-bold text-brand-charcoal dark:text-white tracking-tight">Job Management</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Control center for all cross-client deployments</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Control center for all active hiring mandates</p>
         </div>
         <button onClick={() => setShowModal(true)} className="btn-primary shadow-glow-cyan" id="admin-post-job-btn">
           <Plus size={18} className="mr-2" /> Initialize Mandate
