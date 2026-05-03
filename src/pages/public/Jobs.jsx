@@ -24,6 +24,7 @@ function JobCard({ job }) {
       setApplied(true)
     }, 1500)
   }
+  return (
     <div className="card-hover group flex flex-col gap-4 relative overflow-hidden bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 p-6">
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-brand-cyan/5 to-transparent rounded-bl-full pointer-events-none transition-transform duration-500 group-hover:scale-110"></div>
       
