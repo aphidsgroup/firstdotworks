@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { SiteSettingsProvider } from './context/SiteSettingsContext'
 import { ChatProvider } from './context/ChatContext'
+import { NotificationProvider } from './context/NotificationContext'
 import { useEffect } from 'react'
 import FloatingChat from './components/FloatingChat'
 
@@ -146,15 +147,17 @@ export default function App() {
   return (
     <ThemeProvider>
       <SiteSettingsProvider>
-        <ChatProvider>
-          <AuthProvider>
-            <BrowserRouter>
-              <ScrollToTop />
-              <AppRoutes />
-              <FloatingChat />
-            </BrowserRouter>
-          </AuthProvider>
-        </ChatProvider>
+        <NotificationProvider>
+          <ChatProvider>
+            <AuthProvider>
+              <BrowserRouter>
+                <ScrollToTop />
+                <AppRoutes />
+                <FloatingChat />
+              </BrowserRouter>
+            </AuthProvider>
+          </ChatProvider>
+        </NotificationProvider>
       </SiteSettingsProvider>
     </ThemeProvider>
   )

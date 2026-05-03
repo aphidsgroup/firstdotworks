@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
+import { useNotifications } from '../../context/NotificationContext'
 
 const navItems = {
   admin: [
@@ -40,6 +41,9 @@ export default function DashboardLayout({ role }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { currentUser, logout } = useAuth()
   const { isDark, toggle } = useTheme()
+  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications()
+  const [showNotifs, setShowNotifs] = useState(false)
+  const notifRef = useRef(null)
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const mainRef = useRef(null)
@@ -49,7 +53,19 @@ export default function DashboardLayout({ role }) {
     if (mainRef.current) {
       mainRef.current.scrollTo(0, 0)
     }
+    setShowNotifs(false) // Close dropdown on route change
   }, [pathname])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotifs(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -198,10 +214,55 @@ export default function DashboardLayout({ role }) {
             <button onClick={toggle} className="p-2.5 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-surface hover:text-brand-cyan transition-all duration-300">
               {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <button className="relative p-2.5 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-surface hover:text-brand-cyan transition-all duration-300">
-              <Bell size={18} />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-brand-orange border-2 border-white dark:border-dark-bg"></span>
-            </button>
+            <div className="relative" ref={notifRef}>
+              <button 
+                onClick={() => setShowNotifs(!showNotifs)}
+                className={`relative p-2.5 rounded-full transition-all duration-300 ${showNotifs ? 'bg-brand-cyan/10 text-brand-cyan' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-surface hover:text-brand-cyan'}`}
+              >
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-brand-orange text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-dark-bg animate-pulse-slow">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown */}
+              {showNotifs && (
+                <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 rounded-3xl shadow-card-lg z-50 overflow-hidden animate-fade-in">
+                  <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-dark-bg/50">
+                    <h4 className="text-sm font-bold dark:text-white uppercase tracking-widest">Alerts Center</h4>
+                    <button onClick={markAllAsRead} className="text-[10px] font-bold text-brand-cyan hover:text-brand-orange uppercase tracking-widest transition-colors">Mark All Read</button>
+                  </div>
+                  <div className="max-h-[350px] overflow-y-auto">
+                    {notifications.length > 0 ? notifications.map(n => (
+                      <div 
+                        key={n.id} 
+                        onClick={() => { markAsRead(n.id); navigate(n.link); setShowNotifs(false); }}
+                        className={`p-4 border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors relative ${!n.read ? 'bg-brand-cyan/[0.02]' : ''}`}
+                      >
+                        {!n.read && <span className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-brand-cyan shadow-glow-cyan" />}
+                        <div className="flex justify-between items-start mb-1 pl-2">
+                          <h5 className={`text-xs font-bold leading-tight ${!n.read ? 'text-brand-charcoal dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>{n.title}</h5>
+                          <span className="text-[10px] font-medium text-gray-400">{new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                        <p className="text-[11px] text-gray-500 leading-normal pl-2">{n.message}</p>
+                      </div>
+                    )) : (
+                      <div className="py-12 flex flex-col items-center justify-center text-gray-400 text-center px-6">
+                        <Bell size={24} className="mb-3 opacity-20" />
+                        <p className="text-[10px] font-bold uppercase tracking-widest">No New Notifications</p>
+                      </div>
+                    )}
+                  </div>
+                  {notifications.length > 0 && (
+                    <div className="p-3 bg-gray-50/50 dark:bg-dark-bg/50 text-center border-t border-gray-100 dark:border-gray-800">
+                      <button onClick={clearAll} className="text-[10px] font-bold text-gray-400 hover:text-rose-500 uppercase tracking-widest transition-colors">Clear All Logs</button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

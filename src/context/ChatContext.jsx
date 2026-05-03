@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useNotifications } from './NotificationContext';
 
 const ChatContext = createContext();
 
@@ -7,6 +8,7 @@ export function useChat() {
 }
 
 export function ChatProvider({ children }) {
+  const { addNotification } = useNotifications();
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem('site_chats');
     return saved ? JSON.parse(saved) : [];
@@ -38,6 +40,15 @@ export function ChatProvider({ children }) {
     };
     
     setMessages(prev => [...prev, newMessage]);
+
+    if (senderType === 'user') {
+      addNotification(
+        'New Chat Message',
+        `A user from session ${sessionId.split('_')[1] || 'Guest'} sent a message: "${text.substring(0, 30)}..."`,
+        'message',
+        '/dashboard/admin/inbox'
+      );
+    }
   };
 
   const getSessionMessages = (sessionId = anonymousId) => {
