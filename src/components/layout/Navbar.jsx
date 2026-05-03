@@ -113,7 +113,7 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {open && (
-          <div className="lg:hidden py-6 border-t border-surface-border dark:border-dark-border animate-fade-in">
+          <div className="lg:hidden absolute top-full left-0 right-0 bg-white dark:bg-dark-bg py-8 px-6 border-t border-surface-border dark:border-dark-border shadow-2xl animate-fade-in z-[60]">
             <nav className="flex flex-col gap-2">
               {navLinks.map(l => (
                 <NavLink
