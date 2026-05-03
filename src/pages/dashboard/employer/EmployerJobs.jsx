@@ -4,22 +4,33 @@ import { jobs, formatSalary } from '../../../data/jobs'
 
 const compJobs = jobs.filter(j => j.companyId === 'comp_001')
 
-function PostJobModal({ onClose }) {
-  const [form, setForm] = useState({ title: '', location: '', minExp: '', maxExp: '', type: 'full-time', mode: 'hybrid', skills: '', description: '', openings: 1, deadline: '' })
+function PostJobModal({ onClose, job = null }) {
+  const [form, setForm] = useState(job ? {
+    title: job.title,
+    location: job.location,
+    minExp: job.minExperience,
+    maxExp: job.maxExperience,
+    type: job.employmentType,
+    mode: job.workMode,
+    skills: job.skills?.join(', ') || '',
+    description: job.description,
+    openings: job.openings || 1,
+    deadline: job.deadline?.split('T')[0] || ''
+  } : { title: '', location: '', minExp: '', maxExp: '', type: 'full-time', mode: 'hybrid', skills: '', description: '', openings: 1, deadline: '' })
   const [success, setSuccess] = useState(false)
   const handleSubmit = (e) => { e.preventDefault(); setSuccess(true); setTimeout(() => { setSuccess(false); onClose() }, 2000) }
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="bg-white dark:bg-dark-card rounded-2xl shadow-card-lg w-full max-w-xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-surface-border dark:border-dark-border">
-          <h2 className="text-lg font-bold text-brand-charcoal dark:text-white text-center w-full uppercase tracking-widest text-[14px]">Initialize New Mandate</h2>
+          <h2 className="text-lg font-bold text-brand-charcoal dark:text-white text-center w-full uppercase tracking-widest text-[14px]">{job ? 'Modify Mandate' : 'Initialize New Mandate'}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface text-gray-400"><X size={18} /></button>
         </div>
         {success ? (
           <div className="p-12 text-center shadow-glow-cyan bg-brand-cyan/5 rounded-b-2xl animate-fade-in">
             <CheckCircle size={48} className="text-brand-cyan mx-auto mb-3" />
-            <h3 className="text-lg font-bold dark:text-white uppercase tracking-widest">Mandate Published!</h3>
-            <p className="text-sm text-gray-400 mt-2">Broadcast sequence initiated successfully.</p>
+            <h3 className="text-lg font-bold dark:text-white uppercase tracking-widest">{job ? 'Mandate Synchronized!' : 'Mandate Published!'}</h3>
+            <p className="text-sm text-gray-400 mt-2">{job ? 'Update sequence completed.' : 'Broadcast sequence initiated successfully.'}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -63,7 +74,7 @@ function PostJobModal({ onClose }) {
               <label className="label">Description *</label>
               <textarea required rows={4} className="input resize-none" value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
             </div>
-            <div className="flex gap-3"><button type="submit" className="btn-primary flex-1 shadow-glow-cyan">Publish Mandate</button><button type="button" onClick={onClose} className="btn-ghost px-6 border border-gray-100 dark:border-gray-800">Abort</button></div>
+            <div className="flex gap-3"><button type="submit" className="btn-primary flex-1 shadow-glow-cyan">{job ? 'Confirm Modification' : 'Publish Mandate'}</button><button type="button" onClick={onClose} className="btn-ghost px-6 border border-gray-100 dark:border-gray-800">Abort</button></div>
           </form>
         )}
       </div>
@@ -73,15 +84,27 @@ function PostJobModal({ onClose }) {
 
 export default function EmployerJobs() {
   const [showModal, setShowModal] = useState(false)
+  const [selectedJob, setSelectedJob] = useState(null)
+
+  const handleEdit = (job) => {
+    setSelectedJob(job)
+    setShowModal(true)
+  }
+
+  const handleNew = () => {
+    setSelectedJob(null)
+    setShowModal(true)
+  }
+
   return (
     <div className="space-y-5 animate-fade-in">
-      {showModal && <PostJobModal onClose={() => setShowModal(false)} />}
+      {showModal && <PostJobModal onClose={() => { setShowModal(false); setSelectedJob(null); }} job={selectedJob} />}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-brand-charcoal dark:text-white">My Job Postings</h1>
           <p className="text-sm text-gray-400">TechCorp Solutions — {compJobs.length} active listings</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn-primary shadow-glow-cyan btn-sm"><Plus size={16} className="mr-1" /> Initialize Mandate</button>
+        <button onClick={handleNew} className="btn-primary shadow-glow-cyan btn-sm"><Plus size={16} className="mr-1" /> Initialize Mandate</button>
       </div>
       <div className="card overflow-hidden p-0">
         <div className="table-wrapper">
@@ -99,8 +122,8 @@ export default function EmployerJobs() {
                   <td className="td text-xs text-gray-400">{new Date(job.deadline).toLocaleDateString('en-IN')}</td>
                   <td className="td">
                     <div className="flex gap-1">
-                      <button className="p-1.5 rounded hover:bg-surface text-gray-400 hover:text-brand-cyan"><Eye size={14} /></button>
-                      <button className="p-1.5 rounded hover:bg-surface text-gray-400 hover:text-brand-orange"><Edit size={14} /></button>
+                      <button onClick={() => handleEdit(job)} className="p-1.5 rounded hover:bg-surface text-gray-400 hover:text-brand-cyan"><Eye size={14} /></button>
+                      <button onClick={() => handleEdit(job)} className="p-1.5 rounded hover:bg-surface text-gray-400 hover:text-brand-orange"><Edit size={14} /></button>
                     </div>
                   </td>
                 </tr>

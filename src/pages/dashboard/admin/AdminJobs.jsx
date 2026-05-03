@@ -4,8 +4,23 @@ import { jobs, formatSalary } from '../../../data/jobs'
 
 const statusColors = { published: 'bg-green-500/10 text-green-500 border-green-500/20', draft: 'bg-gray-500/10 text-gray-500 border-gray-500/20', closed: 'bg-red-500/10 text-red-500 border-red-500/20' }
 
-function JobPostingModal({ onClose }) {
-  const [form, setForm] = useState({ title: '', company: '', location: '', minExp: '', maxExp: '', minSalary: '', maxSalary: '', type: 'full-time', mode: 'hybrid', department: '', skills: '', description: '', openings: 1, deadline: '' })
+function JobPostingModal({ onClose, job = null }) {
+  const [form, setForm] = useState(job ? {
+    title: job.title,
+    company: job.company,
+    location: job.location,
+    minExp: job.minExperience,
+    maxExp: job.maxExperience,
+    minSalary: job.minSalary,
+    maxSalary: job.maxSalary,
+    type: job.employmentType,
+    mode: job.workMode,
+    department: job.department,
+    skills: job.skills?.join(', ') || '',
+    description: job.description,
+    openings: job.openings || 1,
+    deadline: job.deadline?.split('T')[0] || ''
+  } : { title: '', company: '', location: '', minExp: '', maxExp: '', minSalary: '', maxSalary: '', type: 'full-time', mode: 'hybrid', department: '', skills: '', description: '', openings: 1, deadline: '' })
   const [success, setSuccess] = useState(false)
 
   const handleSubmit = (e) => {
@@ -25,7 +40,7 @@ function JobPostingModal({ onClose }) {
             <div className="w-8 h-8 rounded-lg bg-brand-cyan/10 flex items-center justify-center text-brand-cyan">
               <Briefcase size={16} />
             </div>
-            <h2 className="text-xl font-display font-bold text-brand-charcoal dark:text-white">Initialize Mandate</h2>
+            <h2 className="text-xl font-display font-bold text-brand-charcoal dark:text-white">{job ? 'Modify Mandate' : 'Initialize Mandate'}</h2>
           </div>
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-brand-charcoal dark:hover:text-white transition-colors"><X size={18} /></button>
         </div>
@@ -36,8 +51,8 @@ function JobPostingModal({ onClose }) {
               <div className="w-20 h-20 rounded-full bg-brand-cyan/10 flex items-center justify-center mb-6">
                 <CheckCircle size={40} className="text-brand-cyan" />
               </div>
-              <h3 className="text-2xl font-display font-bold text-brand-charcoal dark:text-white mb-2">Mandate Published!</h3>
-              <p className="text-gray-400">The job listing has been successfully broadcasted to the network.</p>
+              <h3 className="text-2xl font-display font-bold text-brand-charcoal dark:text-white mb-2">{job ? 'Mandate Synchronized!' : 'Mandate Published!'}</h3>
+              <p className="text-gray-400">The job listing has been successfully {job ? 'updated and re-synced' : 'broadcasted'} to the network.</p>
             </div>
           ) : (
             <form id="job-form" onSubmit={handleSubmit} className="space-y-6">
@@ -110,7 +125,7 @@ function JobPostingModal({ onClose }) {
         {!success && (
           <div className="p-6 border-t border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-dark-bg/50 backdrop-blur-md relative z-10 flex gap-3 justify-end">
             <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Abort</button>
-            <button type="submit" form="job-form" className="btn-primary shadow-glow-cyan px-8">Publish Mandate</button>
+            <button type="submit" form="job-form" className="btn-primary shadow-glow-cyan px-8">{job ? 'Confirm Modification' : 'Publish Mandate'}</button>
           </div>
         )}
       </div>
@@ -119,13 +134,23 @@ function JobPostingModal({ onClose }) {
 }
 
 export default function AdminJobs() {
-  const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [selectedJob, setSelectedJob] = useState(null)
   const filtered = jobs.filter(j => j.title.toLowerCase().includes(search.toLowerCase()) || j.company.toLowerCase().includes(search.toLowerCase()))
+
+  const handleEdit = (job) => {
+    setSelectedJob(job)
+    setShowModal(true)
+  }
+
+  const handleNew = () => {
+    setSelectedJob(null)
+    setShowModal(true)
+  }
 
   return (
     <div className="space-y-6 animate-fade-in pb-8">
-      {showModal && <JobPostingModal onClose={() => setShowModal(false)} />}
+      {showModal && <JobPostingModal onClose={() => { setShowModal(false); setSelectedJob(null); }} job={selectedJob} />}
 
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -135,7 +160,7 @@ export default function AdminJobs() {
           <h1 className="text-3xl md:text-4xl font-display font-bold text-brand-charcoal dark:text-white tracking-tight">Job Management</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Control center for all active hiring mandates</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn-primary shadow-glow-cyan" id="admin-post-job-btn">
+        <button onClick={handleNew} className="btn-primary shadow-glow-cyan" id="admin-post-job-btn">
           <Plus size={18} className="mr-2" /> Initialize Mandate
         </button>
       </div>
@@ -177,8 +202,8 @@ export default function AdminJobs() {
                   <td className="td px-6 py-4"><span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${statusColors[job.status] || 'bg-gray-100 text-gray-600 border-gray-200'}`}>{job.status}</span></td>
                   <td className="td px-6 py-4">
                     <div className="flex items-center gap-1">
-                      <button className="p-2 rounded-lg hover:bg-brand-cyan/10 text-gray-400 hover:text-brand-cyan transition-colors" title="Inspect"><Eye size={16} /></button>
-                      <button className="p-2 rounded-lg hover:bg-brand-orange/10 text-gray-400 hover:text-brand-orange transition-colors" title="Modify"><Edit size={16} /></button>
+                      <button onClick={() => handleEdit(job)} className="p-2 rounded-lg hover:bg-brand-cyan/10 text-gray-400 hover:text-brand-cyan transition-colors" title="Inspect"><Eye size={16} /></button>
+                      <button onClick={() => handleEdit(job)} className="p-2 rounded-lg hover:bg-brand-orange/10 text-gray-400 hover:text-brand-orange transition-colors" title="Modify"><Edit size={16} /></button>
                       <button className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-500 transition-colors" title="Terminate"><Trash2 size={16} /></button>
                     </div>
                   </td>
