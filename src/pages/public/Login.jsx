@@ -86,7 +86,7 @@ export default function Login() {
         <div className="container-xl flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 relative group">
             <div className="absolute -inset-2 bg-brand-cyan/0 group-hover:bg-brand-cyan/5 rounded-full blur-md transition-all duration-500"></div>
-            <img src="/logo.png" alt="Firstdot Works" className="h-12 w-auto relative z-10" />
+            <img src="/logo.png" alt="Firstdot Works" className="h-28 w-auto relative z-10 dark:invert dark:brightness-200 scale-125 object-contain" />
           </Link>
           <Link to="/" className="text-sm font-medium text-gray-500 hover:text-brand-cyan transition-colors px-4 py-2 rounded-lg hover:bg-brand-cyan/5">
             ← Back to network

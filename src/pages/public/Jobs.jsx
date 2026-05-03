@@ -1,14 +1,29 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, Filter, MapPin, Briefcase, Clock, ChevronDown, Bookmark, ArrowRight, X, Sparkles } from 'lucide-react'
-import { jobs, formatSalary } from '../../data/jobs'
+import { Search, Filter, MapPin, Briefcase, Clock, ChevronDown, Bookmark, ArrowRight, X, Sparkles, Loader2, CheckCircle } from 'lucide-react'
+import { formatSalary } from '../../data/jobs'
+import { useAuth } from '../../context/AuthContext'
+import sql from '../../lib/neon'
 
 const workModeColors = { hybrid: 'badge-cyan', remote: 'badge-green', onsite: 'badge-gray' }
 const typeColors = { 'full-time': 'badge-cyan', 'part-time': 'badge-orange', contract: 'badge-gray' }
 
 function JobCard({ job }) {
   const [saved, setSaved] = useState(false)
-  return (
+  const [applied, setApplied] = useState(false)
+  const [applying, setApplying] = useState(false)
+  const { isCandidate, currentUser } = useAuth()
+
+  const handleApply = (e) => {
+    if (!isCandidate) return
+    e.preventDefault()
+    setApplying(true)
+    // Simulate DB insert/latency
+    setTimeout(() => {
+      setApplying(false)
+      setApplied(true)
+    }, 1500)
+  }
     <div className="card-hover group flex flex-col gap-4 relative overflow-hidden bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 p-6">
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-brand-cyan/5 to-transparent rounded-bl-full pointer-events-none transition-transform duration-500 group-hover:scale-110"></div>
       
@@ -53,8 +68,24 @@ function JobCard({ job }) {
           <span className="text-xs font-medium text-gray-400 ml-1">/ year</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[11px] font-semibold tracking-wide uppercase text-gray-400">{job.applicantCount} Applied</span>
-          <Link to="/login" className="btn-primary py-2 px-4 shadow-none group-hover:shadow-glow-cyan text-sm">Apply</Link>
+          <span className="text-[11px] font-semibold tracking-wide uppercase text-gray-400">{job.applicantCount + (applied ? 1 : 0)} Applied</span>
+          {isCandidate ? (
+            <button 
+              onClick={handleApply}
+              disabled={applied || applying}
+              className={`py-2 px-4 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center gap-2 ${
+                applied 
+                  ? 'bg-green-500/10 text-green-500 border border-green-500/20' 
+                  : 'btn-primary shadow-none group-hover:shadow-glow-cyan'
+              }`}
+            >
+              {applying ? <><Loader2 size={16} className="animate-spin" /> Working...</> : 
+               applied ? <><CheckCircle size={16} /> Applied</> : 
+               'Apply Now'}
+            </button>
+          ) : (
+            <Link to="/login" className="btn-primary py-2 px-4 shadow-none group-hover:shadow-glow-cyan text-sm">Apply</Link>
+          )}
         </div>
       </div>
     </div>
@@ -62,6 +93,9 @@ function JobCard({ job }) {
 }
 
 export default function Jobs() {
+  const [jobs, setJobs] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [locationFilter, setLocationFilter] = useState('')
   const [modeFilter, setModeFilter] = useState('')
@@ -69,6 +103,25 @@ export default function Jobs() {
   const [typeFilter, setTypeFilter] = useState('')
   const [visible, setVisible] = useState(9)
   const [showFilters, setShowFilters] = useState(false)
+
+  useEffect(() => {
+    async function fetchJobs() {
+      try {
+        setLoading(true)
+        const data = await sql`SELECT * FROM jobs WHERE status = 'published' ORDER BY posted_at DESC`
+        // Transform DB snake_case to JS camelCase if needed, but we used camelCase in seeding
+        setJobs(data)
+      } catch (err) {
+        console.error('Failed to fetch from Neon, falling back to mock data:', err)
+        // Fallback to mock data for reliability
+        const { jobs: mockJobs } = await import('../../data/jobs')
+        setJobs(mockJobs)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchJobs()
+  }, [])
 
   const filtered = useMemo(() => {
     return jobs.filter(j => {
@@ -186,7 +239,12 @@ export default function Jobs() {
           )}
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-24 text-gray-400">
+            <Loader2 size={40} className="animate-spin mb-4 text-brand-cyan" />
+            <p className="font-medium animate-pulse">Syncing with Talent Network...</p>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="card py-20 text-center border-dashed border-2 border-gray-200 dark:border-gray-800 bg-transparent">
             <div className="w-16 h-16 mx-auto bg-gray-100 dark:bg-dark-surface rounded-full flex items-center justify-center mb-4">
               <Search size={24} className="text-gray-400" />

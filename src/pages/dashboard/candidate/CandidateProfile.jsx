@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Upload, CheckCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Upload, CheckCircle, FileText, Loader2, RefreshCw } from 'lucide-react'
 import { candidates } from '../../../data/candidates'
 
 const me = candidates[0]
@@ -22,6 +22,24 @@ export default function CandidateProfile() {
   })
   const [saved, setSaved] = useState(false)
   const [uploaded, setUploaded] = useState(me.resumeAvailable)
+  const [uploading, setUploading] = useState(false)
+  const [progress, setProgress] = useState(0)
+
+  const handleUpload = () => {
+    setUploading(true)
+    setProgress(0)
+    const interval = setInterval(() => {
+      setProgress(p => {
+        if (p >= 100) {
+          clearInterval(interval)
+          setUploading(false)
+          setUploaded(true)
+          return 100
+        }
+        return p + 5
+      })
+    }, 50)
+  }
 
   const handleSave = (e) => {
     e.preventDefault()
@@ -49,26 +67,48 @@ export default function CandidateProfile() {
       </div>
 
       {/* Resume upload */}
-      <div className="card">
-        <h3 className="text-base font-semibold text-brand-charcoal dark:text-white mb-4">Resume</h3>
-        {uploaded ? (
-          <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/15 border border-green-200 dark:border-green-800">
-            <CheckCircle size={20} className="text-green-500" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-green-700 dark:text-green-300">Resume uploaded</p>
-              <p className="text-xs text-green-500">Arun_Kumar_Resume.pdf · Last updated April 2026</p>
+      <div className="card border-surface-border dark:border-dark-border">
+        <h3 className="text-base font-semibold text-brand-charcoal dark:text-white mb-4 flex items-center gap-2">
+          <FileText size={18} className="text-brand-cyan" /> Resume Management
+        </h3>
+        
+        {uploading ? (
+          <div className="p-8 border-2 border-dashed border-brand-cyan/30 rounded-xl bg-brand-cyan/5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Loader2 size={20} className="animate-spin text-brand-cyan" />
+                <span className="text-sm font-bold text-brand-charcoal dark:text-white uppercase tracking-widest">Encrypting & Storing Node...</span>
+              </div>
+              <span className="text-sm font-bold text-brand-cyan">{progress}%</span>
             </div>
-            <button onClick={() => setUploaded(false)} className="btn-outline btn-sm text-xs">Replace</button>
+            <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
+              <div className="bg-brand-cyan h-full transition-all duration-300 shadow-glow-cyan" style={{ width: `${progress}%` }}></div>
+            </div>
+          </div>
+        ) : uploaded ? (
+          <div className="flex items-center gap-4 p-5 rounded-xl bg-green-500/5 dark:bg-green-500/10 border border-green-500/20">
+            <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 shadow-sm">
+              <CheckCircle size={24} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-brand-charcoal dark:text-white">Arun_Kumar_Resume.pdf</p>
+              <p className="text-xs text-green-600 font-medium mt-0.5 tracking-wide uppercase">Stored in Network · Active</p>
+            </div>
+            <button onClick={() => setUploaded(false)} className="p-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-brand-cyan transition-colors" title="Replace Data">
+              <RefreshCw size={18} />
+            </button>
           </div>
         ) : (
           <div
-            className="border-2 border-dashed border-surface-border dark:border-dark-border rounded-xl p-8 text-center cursor-pointer hover:border-brand-cyan/50 transition-colors"
-            onClick={() => setUploaded(true)}
+            className="border-2 border-dashed border-surface-border dark:border-dark-border rounded-xl p-10 text-center cursor-pointer hover:border-brand-cyan/50 hover:bg-brand-cyan/5 transition-all duration-300 group"
+            onClick={handleUpload}
           >
-            <Upload size={28} className="mx-auto mb-3 text-gray-300" />
-            <p className="text-sm font-medium text-gray-500">Drop your resume here or click to upload</p>
-            <p className="text-xs text-gray-400 mt-1">PDF, DOC, DOCX · Max 5MB</p>
-            <button className="btn-outline btn-sm mt-4">Choose File</button>
+            <div className="w-16 h-16 bg-gray-50 dark:bg-dark-bg rounded-2xl flex items-center justify-center mx-auto mb-4 border border-gray-100 dark:border-gray-800 group-hover:border-brand-cyan/30 group-hover:scale-110 transition-all">
+              <Upload size={32} className="text-gray-300 group-hover:text-brand-cyan" />
+            </div>
+            <h4 className="text-sm font-bold text-brand-charcoal dark:text-white mb-1">Initialize Data Upload</h4>
+            <p className="text-xs text-gray-400 max-w-xs mx-auto leading-relaxed">PDF, DOCX formats supported. Maximum capacity 5MB per node.</p>
+            <button className="btn-outline btn-sm mt-6 group-hover:border-brand-cyan group-hover:text-brand-cyan">Identify File</button>
           </div>
         )}
       </div>
