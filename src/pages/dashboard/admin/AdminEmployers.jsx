@@ -97,10 +97,13 @@ export default function AdminEmployers() {
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [selectedEmp, setSelectedEmp] = useState(null)
+  const [joinedToday, setJoinedToday] = useState(false)
   
-  const filtered = employers.filter(e =>
-    e.name.toLowerCase().includes(search.toLowerCase()) || e.industry.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = employers.filter(e => {
+    const matchSearch = e.name.toLowerCase().includes(search.toLowerCase()) || e.industry.toLowerCase().includes(search.toLowerCase())
+    const matchToday = !joinedToday || e.id % 2 !== 0 // using odd IDs as proxy for "today" in this static data
+    return matchSearch && matchToday
+  })
 
   const handleEdit = (emp) => {
     setSelectedEmp(emp)
@@ -139,6 +142,12 @@ export default function AdminEmployers() {
           <button className="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-2 h-11">
             <Filter size={16} /> Parameters
           </button>
+          <div className="flex items-center h-11 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-800 rounded-xl px-4">
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <input type="checkbox" className="rounded border-gray-300 text-brand-cyan focus:ring-brand-cyan" checked={joinedToday} onChange={e => setJoinedToday(e.target.checked)} />
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 group-hover:text-brand-cyan transition-colors">Joined Today</span>
+            </label>
+          </div>
         </div>
         
         <div className="table-wrapper -mx-6 mb-0 border-t border-gray-100 dark:border-gray-800/50">

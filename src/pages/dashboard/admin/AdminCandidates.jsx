@@ -34,6 +34,7 @@ export default function AdminCandidates() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [locFilter, setLocFilter] = useState('')
+  const [joinedToday, setJoinedToday] = useState(false)
   const [selected, setSelected] = useState(null)
 
   const filtered = useMemo(() => {
@@ -42,9 +43,13 @@ export default function AdminCandidates() {
       const matchQ = !q || c.name.toLowerCase().includes(q) || c.role.toLowerCase().includes(q) || c.skills.some(s => s.toLowerCase().includes(q))
       const matchStatus = !statusFilter || c.status === statusFilter
       const matchLoc = !locFilter || c.location.toLowerCase().includes(locFilter.toLowerCase())
-      return matchQ && matchStatus && matchLoc
+      
+      // Mock joined today logic - filtering out some for demo if checked
+      const matchToday = !joinedToday || c.id % 2 === 0 // using even IDs as proxy for "today" in this static data
+      
+      return matchQ && matchStatus && matchLoc && matchToday
     })
-  }, [search, statusFilter, locFilter])
+  }, [search, statusFilter, locFilter, joinedToday])
 
   return (
     <div className="space-y-6 animate-fade-in pb-8">
@@ -74,6 +79,12 @@ export default function AdminCandidates() {
         </div>
         <div className="relative">
           <input type="text" placeholder="Sector / Location..." className="input pl-4 bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800 focus:border-brand-cyan/50 focus:ring-brand-cyan/20 h-11 w-40" value={locFilter} onChange={e => setLocFilter(e.target.value)} />
+        </div>
+        <div className="flex items-center h-11 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-800 rounded-xl px-4">
+          <label className="flex items-center gap-2 cursor-pointer group">
+            <input type="checkbox" className="rounded border-gray-300 text-brand-cyan focus:ring-brand-cyan" checked={joinedToday} onChange={e => setJoinedToday(e.target.checked)} />
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 group-hover:text-brand-cyan transition-colors">Joined Today</span>
+          </label>
         </div>
         <div className="text-xs font-bold uppercase tracking-wider text-gray-400 py-2 px-4 bg-gray-50 dark:bg-dark-bg rounded-xl border border-gray-100 dark:border-gray-800 self-stretch flex items-center">{filtered.length} nodes matched</div>
       </div>

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { SiteSettingsProvider } from './context/SiteSettingsContext'
 import { useEffect } from 'react'
 import FloatingChat from './components/FloatingChat'
 
@@ -29,6 +30,7 @@ import AdminCandidates from './pages/dashboard/admin/AdminCandidates'
 import AdminEmployers from './pages/dashboard/admin/AdminEmployers'
 import AdminApplications from './pages/dashboard/admin/AdminApplications'
 import AdminResumeDB from './pages/dashboard/admin/AdminResumeDB'
+import AdminSettings from './pages/dashboard/admin/AdminSettings'
 
 // Employer pages
 import EmployerDashboard from './pages/dashboard/employer/EmployerDashboard'
@@ -104,6 +106,7 @@ function AppRoutes() {
         <Route path="employers" element={<AdminEmployers />} />
         <Route path="applications" element={<AdminApplications />} />
         <Route path="resume-db" element={<AdminResumeDB />} />
+        <Route path="settings" element={<AdminSettings />} />
       </Route>
 
       {/* Employer dashboard */}
@@ -139,13 +142,15 @@ function AppRoutes() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <ScrollToTop />
-          <AppRoutes />
-          <FloatingChat />
-        </BrowserRouter>
-      </AuthProvider>
+      <SiteSettingsProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <AppRoutes />
+            <FloatingChat />
+          </BrowserRouter>
+        </AuthProvider>
+      </SiteSettingsProvider>
     </ThemeProvider>
   )
 }

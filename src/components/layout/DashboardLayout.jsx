@@ -16,6 +16,7 @@ const navItems = {
     { to: '/dashboard/admin/employers', label: 'Employers', icon: Building2 },
     { to: '/dashboard/admin/applications', label: 'Applications', icon: ClipboardList },
     { to: '/dashboard/admin/resume-db', label: 'Resume Database', icon: Database },
+    { to: '/dashboard/admin/settings', label: 'Settings', icon: Settings },
   ],
   employer: [
     { to: '/dashboard/employer', label: 'Overview', icon: LayoutDashboard, end: true },
