@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, Smile, Paperclip } from 'lucide-react';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import { useChat } from '../context/ChatContext';
 
 export default function FloatingChat() {
   const { settings } = useSiteSettings();
+  const { sendMessage, getSessionMessages, anonymousId } = useChat();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [showAutoMessage, setShowAutoMessage] = useState(false);
-  const [message, setMessage] = useState('');
+  const [inputText, setInputText] = useState('');
+  const scrollRef = useRef(null);
+
+  const sessionMessages = getSessionMessages(anonymousId);
   
   useEffect(() => {
     if (settings?.chatEnabled) {
@@ -17,6 +22,12 @@ export default function FloatingChat() {
     }
   }, [settings?.chatEnabled]);
 
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [sessionMessages.length]);
+
   if (!settings) return null;
 
   const { chatEnabled, whatsappEnabled, agentName, whatsappNumber, welcomeMessage } = settings;
@@ -26,6 +37,13 @@ export default function FloatingChat() {
   const whatsappMessageStr = encodeURIComponent(welcomeMessage || "Hi, I have a query regarding your services.");
   const cleanNumber = whatsappNumber?.replace(/[^0-9]/g, '') || "919941875131";
   const whatsappUrl = `https://wa.me/${cleanNumber}?text=${whatsappMessageStr}`;
+
+  const handleSend = (e) => {
+    e.preventDefault();
+    if (!inputText.trim()) return;
+    sendMessage(inputText, 'user', anonymousId);
+    setInputText('');
+  };
 
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3 pointer-events-none">
@@ -51,14 +69,23 @@ export default function FloatingChat() {
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 p-6 h-80 overflow-y-auto bg-gray-50/50 dark:bg-dark-bg/50">
-            <div className="bg-brand-cyan/10 border border-brand-cyan/20 rounded-2xl p-3 mb-4 max-w-[85%]">
+          <div ref={scrollRef} className="flex-1 p-6 h-80 overflow-y-auto bg-gray-50/50 dark:bg-dark-bg/50 flex flex-col gap-4">
+            <div className="bg-brand-cyan/10 border border-brand-cyan/20 rounded-2xl p-3 max-w-[85%] self-start">
               <p className="text-xs font-bold text-brand-cyan uppercase tracking-widest mb-1">{agentName}</p>
               <p className="text-sm text-brand-charcoal dark:text-gray-200 leading-relaxed">{welcomeMessage}</p>
             </div>
             
+            {sessionMessages.map((msg) => (
+              <div key={msg.id} className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.senderType === 'user' ? 'bg-white dark:bg-dark-surface self-end border border-gray-100 dark:border-gray-800 text-brand-charcoal dark:text-gray-200' : 'bg-brand-cyan/10 border border-brand-cyan/20 self-start text-brand-charcoal dark:text-gray-200'}`}>
+                {msg.text}
+                <div className="text-[10px] opacity-40 font-bold mt-1 text-right">
+                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            ))}
+
             {/* Notification Badge */}
-            <div className="flex justify-center my-4">
+            <div className="flex justify-center my-2">
               <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-bold text-gray-500 uppercase tracking-widest border border-gray-200 dark:border-gray-700">
                 ⚡ {agentName?.split(' ')[0]} usually replies within 1 hour
               </span>
@@ -66,21 +93,20 @@ export default function FloatingChat() {
           </div>
 
           {/* Input Area */}
-          <div className="p-4 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <button className="text-gray-400 hover:text-brand-cyan transition-colors"><Smile size={20} /></button>
-              <button className="text-gray-400 hover:text-brand-cyan transition-colors"><Paperclip size={20} /></button>
+          <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+            <form onSubmit={handleSend} className="flex items-center gap-2">
+              <button type="button" className="text-gray-400 hover:text-brand-cyan transition-colors"><Smile size={20} /></button>
               <input 
                 type="text" 
                 placeholder="Type your message..." 
                 className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-1 dark:text-white"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
               />
-              <button className="w-10 h-10 rounded-xl bg-brand-cyan flex items-center justify-center text-white shadow-glow-cyan hover:scale-105 transition-all">
+              <button type="submit" className="w-10 h-10 rounded-xl bg-brand-cyan flex items-center justify-center text-white shadow-glow-cyan hover:scale-105 transition-all">
                 <Send size={18} />
               </button>
-            </div>
+            </form>
           </div>
         </div>
       )}
@@ -105,7 +131,7 @@ export default function FloatingChat() {
         </div>
       )}
 
-      {/* Main Stacked Buttons - ORDER SWAPPED: Live Chat Above, WhatsApp Below */}
+      {/* Main Stacked Buttons */}
       <div className="flex flex-col gap-3 pointer-events-auto">
         
         {/* Live Chat Icon */}

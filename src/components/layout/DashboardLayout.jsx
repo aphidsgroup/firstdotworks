@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Briefcase, Users, Building2, FileText, Database,
   Bell, Search, ChevronLeft, ChevronRight, LogOut, Sun, Moon,
-  User, ClipboardList, Bookmark, Settings, Menu, X, Command
+  User, ClipboardList, Bookmark, Settings, Menu, X, Command, MessageSquare
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -16,6 +16,7 @@ const navItems = {
     { to: '/dashboard/admin/employers', label: 'Employers', icon: Building2 },
     { to: '/dashboard/admin/applications', label: 'Applications', icon: ClipboardList },
     { to: '/dashboard/admin/resume-db', label: 'Resume Database', icon: Database },
+    { to: '/dashboard/admin/inbox', label: 'Chat Inbox', icon: MessageSquare },
     { to: '/dashboard/admin/settings', label: 'Settings', icon: Settings },
   ],
   employer: [
