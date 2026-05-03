@@ -1,8 +1,17 @@
 import { useState } from 'react'
-import { Search } from 'lucide-react'
+import { Search, Filter, Activity } from 'lucide-react'
 import { applications } from '../../../data/applications'
 import { candidates, statusColors, statusLabels } from '../../../data/candidates'
 import { jobs } from '../../../data/jobs'
+
+const premiumStatusColors = {
+  applied: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700',
+  screened: 'bg-brand-cyan/10 text-brand-cyan border-brand-cyan/20',
+  shortlisted: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+  interview_scheduled: 'bg-brand-orange/10 text-brand-orange border-brand-orange/20',
+  selected: 'bg-green-500/10 text-green-500 border-green-500/20',
+  rejected: 'bg-red-500/10 text-red-500 border-red-500/20'
+}
 
 export default function AdminApplications() {
   const [search, setSearch] = useState('')
@@ -20,52 +29,66 @@ export default function AdminApplications() {
   const stages = ['applied', 'screened', 'shortlisted', 'interview_scheduled', 'selected', 'rejected']
 
   return (
-    <div className="space-y-5 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-brand-charcoal dark:text-white">Applications</h1>
-        <p className="text-sm text-gray-400">{applications.length} total applications</p>
-      </div>
-
-      <div className="card flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="Search by candidate or job..." className="input pl-9" value={search} onChange={e => setSearch(e.target.value)} />
+    <div className="space-y-6 animate-fade-in pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-orange/10 border border-brand-orange/20 text-brand-orange text-xs font-bold uppercase tracking-wider mb-3">
+            <Activity size={14} className="animate-pulse-slow" /> Network Pipeline
+          </div>
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-brand-charcoal dark:text-white tracking-tight">Transmission Flow</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">{applications.length} total active nodes tracked</p>
         </div>
-        <select className="select w-44" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-          <option value="">All statuses</option>
-          {stages.map(s => <option key={s} value={s}>{statusLabels[s]}</option>)}
-        </select>
-        <div className="text-sm text-gray-400 self-center">{filtered.length} results</div>
       </div>
 
-      <div className="card overflow-hidden p-0">
-        <div className="table-wrapper">
-          <table className="table">
-            <thead><tr>{['Candidate', 'Job', 'Applied', 'Status', 'Recruiter Note', 'Action'].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
-            <tbody className="bg-white dark:bg-dark-card divide-y divide-surface-border dark:divide-dark-border">
+      <div className="card bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 p-6 overflow-hidden">
+        <div className="flex flex-wrap items-center gap-4 mb-6">
+          <div className="relative flex-1 min-w-[250px]">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input type="text" placeholder="Query nodes by candidate or mandate..." className="input pl-11 bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800 focus:border-brand-orange/50 focus:ring-brand-orange/20 h-11" value={search} onChange={e => setSearch(e.target.value)} />
+          </div>
+          <div className="relative">
+            <select className="select pl-10 pr-10 h-11 bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800 focus:border-brand-orange/50 focus:ring-brand-orange/20 appearance-none font-medium text-sm" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+              <option value="">All Sequences</option>
+              {stages.map(s => <option key={s} value={s}>{statusLabels[s]}</option>)}
+            </select>
+            <Filter size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          </div>
+          <div className="text-xs font-bold uppercase tracking-wider text-gray-400 py-2 px-4 bg-gray-50 dark:bg-dark-bg rounded-xl border border-gray-100 dark:border-gray-800 self-stretch flex items-center">{filtered.length} matches</div>
+        </div>
+
+        <div className="table-wrapper -mx-6 mb-0 border-t border-gray-100 dark:border-gray-800/50">
+          <table className="table w-full">
+            <thead className="bg-gray-50 dark:bg-dark-bg border-b border-gray-100 dark:border-gray-800/50">
+              <tr>
+                {['Node Identifier', 'Target Mandate', 'Timestamp', 'Status', 'Ops Note', 'Action'].map(h => (
+                  <th key={h} className="th px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-dark-surface divide-y divide-gray-100 dark:divide-gray-800/50">
               {filtered.map(a => {
                 const cand = candidates.find(c => c.id === a.candidateId)
                 const job = jobs.find(j => j.id === a.jobId)
                 return (
-                  <tr key={a.id} className="tr-hover">
-                    <td className="td">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-brand-cyan/15 flex items-center justify-center text-brand-cyan text-xs font-bold flex-shrink-0">{cand?.name[0]}</div>
+                  <tr key={a.id} className="tr-hover hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors">
+                    <td className="td px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-brand-cyan/10 flex items-center justify-center text-brand-cyan text-sm font-bold flex-shrink-0">{cand?.name[0]}</div>
                         <div>
-                          <p className="text-sm font-medium text-brand-charcoal dark:text-white">{cand?.name}</p>
-                          <p className="text-xs text-gray-400">{cand?.role}</p>
+                          <p className="text-sm font-bold text-brand-charcoal dark:text-white">{cand?.name}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mt-0.5">{cand?.role}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="td">
-                      <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">{job?.title}</p>
-                      <p className="text-xs text-gray-400">{job?.company}</p>
+                    <td className="td px-6 py-4">
+                      <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{job?.title}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mt-0.5">{job?.company}</p>
                     </td>
-                    <td className="td text-xs text-gray-400">{new Date(a.appliedAt).toLocaleDateString('en-IN')}</td>
-                    <td className="td"><span className={`badge ${statusColors[a.status]}`}>{statusLabels[a.status]}</span></td>
-                    <td className="td text-xs text-gray-500 max-w-[180px] truncate">{a.recruiterNote || '—'}</td>
-                    <td className="td">
-                      <select className="select text-xs py-1 h-8 w-36">
+                    <td className="td px-6 py-4 text-xs font-medium text-gray-400">{new Date(a.appliedAt).toLocaleDateString('en-IN')}</td>
+                    <td className="td px-6 py-4"><span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${premiumStatusColors[a.status]}`}>{statusLabels[a.status]}</span></td>
+                    <td className="td px-6 py-4 text-xs font-medium text-gray-500 max-w-[200px] truncate">{a.recruiterNote || '—'}</td>
+                    <td className="td px-6 py-4">
+                      <select className="select text-[10px] font-bold uppercase tracking-wider py-1.5 h-9 bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800 w-36">
                         {stages.map(s => <option key={s} value={s} selected={s === a.status}>{statusLabels[s]}</option>)}
                       </select>
                     </td>

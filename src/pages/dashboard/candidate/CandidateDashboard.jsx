@@ -3,7 +3,7 @@ import { Briefcase, ClipboardList, Bookmark, UserCheck, Bell, TrendingUp } from 
 import { jobs } from '../../../data/jobs'
 import { candidates } from '../../../data/candidates'
 
-const me = candidates[0] // Arun Kumar — demo candidate
+const me = candidates?.[0] || { name: 'User', appliedJobs: [], savedJobs: [], skills: [], profileStrength: 0, status: 'applied' }
 
 const kpis = [
   { label: 'Recommended Jobs', value: '18', icon: TrendingUp, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10' },
@@ -112,7 +112,7 @@ export default function CandidateDashboard() {
               {appliedJobs.map(job => (
                 <div key={job.id} className="flex items-center justify-between text-xs">
                   <span className="text-gray-600 dark:text-gray-300 truncate max-w-[120px]">{job.title}</span>
-                  <span className="badge badge-orange text-xs">{me.status.replace('_', ' ')}</span>
+                  <span className="badge badge-orange text-xs">{me.status?.replace('_', ' ') || 'applied'}</span>
                 </div>
               ))}
             </div>

@@ -1,55 +1,70 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, CheckCircle, User, Bookmark, Bell, TrendingUp } from 'lucide-react'
+import { ArrowRight, User, Bookmark, Bell, TrendingUp, Target, Shield, Compass, CheckCircle } from 'lucide-react'
 
 const features = [
-  { icon: User, title: 'Build Your Profile', desc: 'Create a comprehensive professional profile with skills, experience, education, and portfolio links.' },
-  { icon: '📄', title: 'Upload Resume', desc: 'Upload your resume to make it discoverable by employers and Firstdot recruiters directly.' },
-  { icon: '🔍', title: 'Search Jobs', desc: 'Browse 124+ active openings with powerful filters for role, location, experience, and work mode.' },
-  { icon: Bookmark, title: 'Save Jobs', desc: 'Save interesting roles to your watchlist and apply when you\'re ready.' },
-  { icon: TrendingUp, title: 'Track Applications', desc: 'See exactly where each application stands — applied, screened, shortlisted, interview, or offer.' },
-  { icon: Bell, title: 'Get Alerts', desc: 'Receive notifications when your application status changes or new matching jobs are posted.' },
+  { icon: User, title: 'Construct Profile', desc: 'Create a comprehensive digital identity. Highlight your stack, experience, and key projects.', color: 'orange' },
+  { icon: Target, title: 'Precision Matching', desc: 'Upload your resume to our intelligence matrix. Get discovered by employers seeking your exact skill node.', color: 'cyan' },
+  { icon: Compass, title: 'Network Navigation', desc: 'Query 124+ active mandates. Utilize advanced parameters for role, location, and operational mode.', color: 'charcoal' },
+  { icon: Bookmark, title: 'Data Retention', desc: 'Cache interesting roles to your secure watchlist and initialize applications when conditions are optimal.', color: 'orange' },
+  { icon: TrendingUp, title: 'Telemetry Tracking', desc: 'Monitor application status with high-fidelity tracking — from initial transmission to final selection.', color: 'cyan' },
+  { icon: Bell, title: 'Real-time Alerts', desc: 'Receive immediate notifications when your application status shifts or new matching nodes are deployed.', color: 'charcoal' },
 ]
 
-const stages = ['Profile Created', 'Resume Uploaded', 'Applied to Jobs', 'Screened', 'Shortlisted', 'Interview', 'Selected 🎉']
+const stages = ['Profile Initialized', 'Data Uploaded', 'Transmission Sent', 'Screening', 'Shortlisted', 'Evaluation', 'Deployed 🎉']
 
 export default function Candidates() {
   return (
-    <div className="animate-fade-in">
-      <section className="bg-brand-charcoal py-20">
-        <div className="container-xl">
-          <div className="max-w-2xl">
-            <p className="text-green-400 text-sm font-semibold mb-3 uppercase tracking-widest">For Candidates</p>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-5 leading-tight">
-              Your next great job <span className="text-brand-orange">starts here.</span>
+    <div className="animate-fade-in bg-surface dark:bg-dark-bg min-h-screen">
+      {/* Hero Section */}
+      <section className="bg-brand-charcoal py-24 relative overflow-hidden">
+        {/* Background Network Pattern */}
+        <div className="absolute inset-0 opacity-[0.03] bg-hero-pattern pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-orange/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+
+        <div className="container-xl relative z-10">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-orange/10 border border-brand-orange/20 text-brand-orange text-xs font-bold uppercase tracking-wider mb-8">
+              <Shield size={14} className="animate-pulse-slow" />
+              Talent Portal
+            </div>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-6 leading-[1.1] tracking-tight">
+              Initialize your <br />
+              <span className="text-brand-orange">next sequence.</span>
             </h1>
-            <p className="text-gray-400 text-lg leading-relaxed mb-8">
-              Firstdot Works helps you discover the right opportunities, track your applications, and get hired faster with recruiter support.
+            <p className="text-xl text-gray-400 leading-relaxed mb-10 max-w-2xl font-medium">
+              Firstdot Works integrates you into Chennai's premier talent network. Discover high-growth nodes, monitor your transmissions, and accelerate your trajectory.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link to="/jobs" className="btn-primary btn-lg">Browse Jobs <ArrowRight size={18} /></Link>
-              <Link to="/login" className="px-7 py-3.5 rounded-lg border border-white/30 text-white font-semibold hover:bg-white/10 transition-colors">
-                Candidate Login
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link to="/jobs" className="btn-primary bg-brand-orange hover:bg-brand-orange-dark shadow-glow-orange border-transparent text-white btn-lg text-base">
+                Query Network <ArrowRight size={18} className="ml-1" />
+              </Link>
+              <Link to="/login" className="px-8 py-3.5 rounded-xl border border-white/20 text-white font-semibold hover:bg-white/10 transition-colors inline-flex items-center justify-center text-base">
+                Authenticate
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="section bg-surface dark:bg-dark-bg">
+      {/* Feature Grid */}
+      <section className="py-24 relative z-20">
         <div className="container-xl">
-          <div className="text-center mb-12">
-            <h2 className="section-title">Everything you need to land your next role</h2>
+          <div className="text-center mb-16">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-brand-orange mb-3">System Utilities</h2>
+            <h3 className="text-3xl md:text-4xl font-display font-bold text-brand-charcoal dark:text-white">Equipped for rapid advancement</h3>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((f, i) => (
-              <div key={i} className="card-hover">
-                <div className="w-10 h-10 rounded-xl bg-brand-orange/10 flex items-center justify-center mb-4">
-                  {typeof f.icon === 'string'
-                    ? <span className="text-xl">{f.icon}</span>
-                    : <f.icon size={20} className="text-brand-orange" />
-                  }
+              <div key={i} className="card bg-white dark:bg-dark-surface p-8 border border-gray-100 dark:border-gray-800 hover:-translate-y-1 hover:shadow-card-md transition-all duration-300 group">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-colors ${
+                  f.color === 'cyan' ? 'bg-brand-cyan/10 text-brand-cyan group-hover:bg-brand-cyan group-hover:text-white' :
+                  f.color === 'orange' ? 'bg-brand-orange/10 text-brand-orange group-hover:bg-brand-orange group-hover:text-white' :
+                  'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 group-hover:bg-brand-charcoal dark:group-hover:bg-gray-100 group-hover:text-white dark:group-hover:text-brand-charcoal'
+                }`}>
+                  <f.icon size={24} />
                 </div>
-                <h3 className="font-semibold text-brand-charcoal dark:text-white mb-2">{f.title}</h3>
+                <h3 className="text-xl font-display font-bold text-brand-charcoal dark:text-white mb-3">{f.title}</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
               </div>
             ))}
@@ -57,33 +72,68 @@ export default function Candidates() {
         </div>
       </section>
 
-      <section className="section-sm bg-white dark:bg-dark-surface">
-        <div className="container-xl">
-          <div className="text-center mb-10">
-            <h2 className="section-title">Your application journey</h2>
-            <p className="section-subtitle mx-auto text-center">Track every step from profile to placement</p>
+      {/* Trajectory Tracker UI */}
+      <section className="py-24 bg-white dark:bg-[#0B0F19] border-y border-gray-100 dark:border-gray-800 relative overflow-hidden">
+        <div className="container-xl relative z-10">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-brand-charcoal dark:text-gray-400 mb-3">Telemetry Sequence</h2>
+            <h3 className="text-3xl md:text-5xl font-display font-bold text-brand-charcoal dark:text-white leading-tight">
+              Monitor your trajectory from <br /><span className="text-brand-cyan">contact to deployment</span>.
+            </h3>
           </div>
-          <div className="flex flex-wrap justify-center gap-2">
-            {stages.map((s, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <div className={`px-4 py-2 rounded-full text-sm font-medium border ${i === stages.length - 1 ? 'bg-green-500 text-white border-green-500' : 'border-brand-cyan/40 text-brand-cyan bg-brand-cyan/8'}`}>
-                  {s}
-                </div>
-                {i < stages.length - 1 && <ArrowRight size={14} className="text-gray-300" />}
-              </div>
-            ))}
+          
+          <div className="card bg-gray-50 dark:bg-dark-surface border border-gray-100 dark:border-gray-800 p-8 md:p-12 overflow-x-auto">
+            <div className="min-w-[800px] flex items-center justify-between relative">
+              {/* Connection Line */}
+              <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 dark:bg-gray-800 -translate-y-1/2 z-0 rounded-full"></div>
+              {/* Active Line */}
+              <div className="absolute top-1/2 left-0 w-[85%] h-1 bg-gradient-to-r from-brand-cyan to-brand-orange -translate-y-1/2 z-0 rounded-full shadow-glow-cyan"></div>
+              
+              {stages.map((s, i) => {
+                const isCompleted = i < stages.length - 1;
+                const isCurrent = i === stages.length - 2;
+                return (
+                  <div key={i} className="relative z-10 flex flex-col items-center gap-4">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 border-white dark:border-dark-surface transition-all duration-300 ${
+                      isCompleted ? 'bg-brand-cyan text-white shadow-glow-cyan' : 
+                      isCurrent ? 'bg-brand-orange text-white shadow-glow-orange scale-125' : 
+                      'bg-gray-200 dark:bg-gray-700 text-transparent'
+                    }`}>
+                      {isCompleted ? <CheckCircle size={16} /> : <div className="w-3 h-3 rounded-full bg-white"></div>}
+                    </div>
+                    <div className={`text-xs font-bold uppercase tracking-wider text-center w-24 ${
+                      isCompleted ? 'text-brand-charcoal dark:text-white' : 'text-gray-400'
+                    }`}>
+                      {s}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-14 bg-brand-charcoal text-center">
-        <div className="container-xl">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to find your next role?</h2>
-          <p className="text-gray-400 mb-7">Create your profile today and get discovered by top employers in Chennai.</p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/login" className="btn-primary btn-lg">Create Account <ArrowRight size={18} /></Link>
-            <Link to="/jobs" className="px-7 py-3.5 rounded-lg border border-white/30 text-white font-semibold hover:bg-white/10 transition-colors">
-              Browse Jobs
+      {/* CTA Banner */}
+      <section className="py-24 bg-brand-charcoal relative overflow-hidden text-center">
+        <div className="absolute inset-0 opacity-[0.03]">
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0,50 L100,50 M50,0 L50,100" stroke="white" strokeWidth="0.5" />
+          </svg>
+        </div>
+        
+        <div className="container-xl relative z-10">
+          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-8">
+            <User size={32} className="text-brand-orange" />
+          </div>
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">Ready to initiate?</h2>
+          <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">Construct your identity today and become discoverable to elite networks in Chennai.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/login" className="btn-primary bg-brand-orange hover:bg-brand-orange-dark shadow-glow-orange border-transparent text-white btn-lg px-10 text-base">
+              Construct Profile
+            </Link>
+            <Link to="/jobs" className="px-8 py-3.5 rounded-xl border border-white/20 text-white font-semibold hover:bg-white/10 transition-colors inline-flex items-center justify-center text-base">
+              Browse Openings
             </Link>
           </div>
         </div>

@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { useEffect } from 'react'
 
 // Public layout wrapper
 import Navbar from './components/layout/Navbar'
@@ -39,6 +40,14 @@ import CandidateProfile from './pages/dashboard/candidate/CandidateProfile'
 import CandidateApplications from './pages/dashboard/candidate/CandidateApplications'
 import CandidateSavedJobs from './pages/dashboard/candidate/CandidateSavedJobs'
 
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
+
 function PublicLayout({ children }) {
   return (
     <>
@@ -64,7 +73,11 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public pages */}
-      <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
+      <Route path="/" element={
+        currentUser?.role 
+          ? <Navigate to={`/dashboard/${currentUser.role}`} replace /> 
+          : <PublicLayout><Home /></PublicLayout>
+      } />
       <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
       <Route path="/services" element={<PublicLayout><Services /></PublicLayout>} />
       <Route path="/jobs" element={<PublicLayout><Jobs /></PublicLayout>} />
@@ -72,7 +85,7 @@ function AppRoutes() {
       <Route path="/candidates" element={<PublicLayout><Candidates /></PublicLayout>} />
       <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
       <Route path="/login" element={
-        currentUser
+        currentUser?.role
           ? <Navigate to={`/dashboard/${currentUser.role}`} replace />
           : <Login />
       } />
@@ -126,6 +139,7 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <AppRoutes />
         </BrowserRouter>
       </AuthProvider>

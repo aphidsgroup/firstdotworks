@@ -1,52 +1,60 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, Filter, MapPin, Briefcase, Clock, ChevronDown, Bookmark, ArrowRight, X } from 'lucide-react'
+import { Search, Filter, MapPin, Briefcase, Clock, ChevronDown, Bookmark, ArrowRight, X, Sparkles } from 'lucide-react'
 import { jobs, formatSalary } from '../../data/jobs'
 
 const workModeColors = { hybrid: 'badge-cyan', remote: 'badge-green', onsite: 'badge-gray' }
-const typeColors = { 'full-time': 'badge-cyan', 'part-time': 'badge-orange', contract: 'badge-purple' }
+const typeColors = { 'full-time': 'badge-cyan', 'part-time': 'badge-orange', contract: 'badge-gray' }
 
 function JobCard({ job }) {
   const [saved, setSaved] = useState(false)
   return (
-    <div className="card-hover flex flex-col gap-3">
-      <div className="flex items-start justify-between gap-2">
+    <div className="card-hover group flex flex-col gap-4 relative overflow-hidden bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 p-6">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-brand-cyan/5 to-transparent rounded-bl-full pointer-events-none transition-transform duration-500 group-hover:scale-110"></div>
+      
+      <div className="flex items-start justify-between gap-3 relative z-10">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-brand-charcoal dark:text-white text-base leading-tight mb-1">{job.title}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{job.company}</p>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-8 h-8 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-700 flex items-center justify-center text-xs font-bold text-gray-500">
+              {job.company.substring(0, 1)}
+            </span>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{job.company}</p>
+          </div>
+          <h3 className="font-display font-bold text-brand-charcoal dark:text-white text-lg leading-tight mb-3 group-hover:text-brand-cyan transition-colors">{job.title}</h3>
         </div>
         <button
           onClick={() => setSaved(!saved)}
-          className={`p-2 rounded-lg transition-colors flex-shrink-0 ${saved ? 'text-brand-cyan bg-brand-cyan/10' : 'text-gray-400 hover:bg-surface dark:hover:bg-dark-surface'}`}
+          className={`p-2 rounded-xl transition-all duration-300 flex-shrink-0 ${saved ? 'text-brand-orange bg-brand-orange/10' : 'text-gray-400 hover:text-brand-cyan hover:bg-brand-cyan/10'}`}
           title="Save job"
         >
-          <Bookmark size={16} fill={saved ? 'currentColor' : 'none'} />
+          <Bookmark size={18} fill={saved ? 'currentColor' : 'none'} />
         </button>
       </div>
-      <div className="flex flex-wrap gap-2">
+
+      <div className="flex flex-wrap gap-2 relative z-10">
         <span className={`badge ${workModeColors[job.workMode] || 'badge-gray'}`}>{job.workMode}</span>
         <span className={`badge ${typeColors[job.employmentType] || 'badge-gray'}`}>{job.employmentType}</span>
-        <span className="badge badge-orange">{job.department}</span>
+        <span className="badge badge-gray bg-gray-50 text-gray-600 border border-gray-100">{job.department}</span>
       </div>
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
-        <span className="flex items-center gap-1"><MapPin size={11} /> {job.location}</span>
-        <span className="flex items-center gap-1"><Briefcase size={11} /> {job.minExperience}–{job.maxExperience} yrs</span>
-        <span className="flex items-center gap-1"><Clock size={11} /> {new Date(job.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+
+      <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-gray-500 dark:text-gray-400 mt-1 relative z-10">
+        <span className="flex items-center gap-1.5"><MapPin size={14} className="text-brand-cyan/70" /> {job.location}</span>
+        <span className="flex items-center gap-1.5"><Briefcase size={14} className="text-brand-cyan/70" /> {job.minExperience}–{job.maxExperience} yrs</span>
+        <span className="flex items-center gap-1.5"><Clock size={14} className="text-brand-cyan/70" /> {new Date(job.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
       </div>
-      <div className="flex flex-wrap gap-1.5">
-        {job.skills.slice(0, 4).map(s => (
-          <span key={s} className="px-2 py-0.5 text-xs bg-surface dark:bg-dark-surface text-gray-600 dark:text-gray-400 rounded-md border border-surface-border dark:border-dark-border">{s}</span>
-        ))}
-        {job.skills.length > 4 && <span className="px-2 py-0.5 text-xs text-gray-400">+{job.skills.length - 4}</span>}
-      </div>
-      <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">{job.description}</p>
-      <div className="flex items-center justify-between pt-2 border-t border-surface-border dark:border-dark-border mt-auto">
-        <span className="text-sm font-semibold text-brand-charcoal dark:text-white">
-          {formatSalary(job.minSalary, job.maxSalary)} <span className="text-xs font-normal text-gray-400">/ year</span>
-        </span>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">{job.applicantCount} applied</span>
-          <Link to="/login" className="btn-primary btn-sm">Apply</Link>
+
+      <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed line-clamp-2 mt-2 relative z-10">{job.description}</p>
+      
+      <div className="flex items-center justify-between pt-5 border-t border-gray-100 dark:border-gray-800 mt-auto relative z-10">
+        <div>
+          <span className="text-base font-display font-bold text-brand-charcoal dark:text-white">
+            {formatSalary(job.minSalary, job.maxSalary)}
+          </span>
+          <span className="text-xs font-medium text-gray-400 ml-1">/ year</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-semibold tracking-wide uppercase text-gray-400">{job.applicantCount} Applied</span>
+          <Link to="/login" className="btn-primary py-2 px-4 shadow-none group-hover:shadow-glow-cyan text-sm">Apply</Link>
         </div>
       </div>
     </div>
@@ -78,63 +86,78 @@ export default function Jobs() {
   const clearAll = () => { setSearch(''); setLocationFilter(''); setModeFilter(''); setExpFilter(''); setTypeFilter('') }
 
   return (
-    <div className="animate-fade-in">
-      {/* Hero search */}
-      <div className="bg-brand-charcoal py-14">
-        <div className="container-xl">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Find Your Next Opportunity</h1>
-          <p className="text-gray-400 mb-7">Browse {jobs.length}+ active jobs across top companies in Chennai and beyond.</p>
-          <div className="flex gap-2 max-w-2xl">
-            <div className="relative flex-1">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Job title, skill, or company..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="input pl-10 h-12"
-                id="job-search-input"
-              />
+    <div className="animate-fade-in bg-surface dark:bg-dark-bg min-h-screen">
+      {/* Hero Search Section - Command Center Style */}
+      <div className="bg-brand-charcoal py-20 relative overflow-hidden">
+        {/* Subtle Network Map Background */}
+        <div className="absolute inset-0 opacity-[0.03]">
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M-10,50 Q25,20 50,50 T110,50" fill="none" stroke="white" strokeWidth="0.5" />
+            <circle cx="50" cy="50" r="1" fill="white" />
+            <circle cx="25" cy="35" r="0.5" fill="white" />
+            <circle cx="75" cy="65" r="0.5" fill="white" />
+          </svg>
+        </div>
+
+        <div className="container-xl relative z-10">
+          <div className="max-w-3xl mx-auto text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4 tracking-tight">Access the <span className="text-brand-cyan">Talent Network</span></h1>
+            <p className="text-gray-400 text-lg">Browse {jobs.length}+ high-growth opportunities across Chennai's top companies.</p>
+          </div>
+
+          <div className="max-w-3xl mx-auto">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1 group">
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-brand-cyan transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Search jobs, skills, or companies..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:bg-white/10 focus:border-brand-cyan focus:outline-none focus:ring-2 focus:ring-brand-cyan/30 transition-all shadow-lg text-base"
+                  id="job-search-input"
+                />
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-6 py-4 rounded-xl border transition-all duration-300 flex items-center justify-center gap-2 font-semibold shadow-lg sm:w-auto w-full ${showFilters || hasFilters ? 'bg-brand-cyan text-white border-brand-cyan shadow-glow-cyan' : 'bg-white/5 border-white/10 text-white hover:bg-white/10'}`}
+              >
+                <Filter size={18} /> {hasFilters ? 'Filters Active' : 'Filters'}
+              </button>
             </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="px-4 h-12 bg-white/10 border border-white/20 text-white rounded-lg hover:bg-white/20 transition-colors flex items-center gap-2 text-sm font-medium"
-            >
-              <Filter size={16} /> Filters
-            </button>
           </div>
         </div>
       </div>
 
-      <div className="container-xl py-8">
-        {/* Filter bar */}
-        {showFilters && (
-          <div className="card mb-6 flex flex-wrap gap-3 items-end animate-slide-up">
-            <div>
-              <label className="label">Location</label>
-              <input type="text" placeholder="Chennai, Remote..." value={locationFilter} onChange={e => setLocationFilter(e.target.value)} className="input w-44" />
+      <div className="container-xl py-12">
+        {/* Filter Bar - Bento Style */}
+        <div className={`transition-all duration-500 overflow-hidden ${showFilters ? 'max-h-96 opacity-100 mb-8' : 'max-h-0 opacity-0 mb-0'}`}>
+          <div className="card bg-white dark:bg-dark-surface p-6 flex flex-wrap gap-4 items-end border-t-4 border-t-brand-cyan">
+            <div className="flex-1 min-w-[200px]">
+              <label className="label text-xs uppercase tracking-wider text-gray-500">Location</label>
+              <input type="text" placeholder="e.g. Chennai, Remote" value={locationFilter} onChange={e => setLocationFilter(e.target.value)} className="input" />
             </div>
-            <div>
-              <label className="label">Work Mode</label>
-              <select value={modeFilter} onChange={e => setModeFilter(e.target.value)} className="select w-36">
+            <div className="w-full sm:w-auto min-w-[150px]">
+              <label className="label text-xs uppercase tracking-wider text-gray-500">Work Mode</label>
+              <select value={modeFilter} onChange={e => setModeFilter(e.target.value)} className="select">
                 <option value="">All modes</option>
                 <option value="onsite">Onsite</option>
                 <option value="hybrid">Hybrid</option>
                 <option value="remote">Remote</option>
               </select>
             </div>
-            <div>
-              <label className="label">Experience</label>
-              <select value={expFilter} onChange={e => setExpFilter(e.target.value)} className="select w-36">
+            <div className="w-full sm:w-auto min-w-[150px]">
+              <label className="label text-xs uppercase tracking-wider text-gray-500">Experience</label>
+              <select value={expFilter} onChange={e => setExpFilter(e.target.value)} className="select">
                 <option value="">All levels</option>
                 <option value="0-2">0–2 years</option>
                 <option value="3-5">3–5 years</option>
                 <option value="6+">6+ years</option>
               </select>
             </div>
-            <div>
-              <label className="label">Type</label>
-              <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="select w-36">
+            <div className="w-full sm:w-auto min-w-[150px]">
+              <label className="label text-xs uppercase tracking-wider text-gray-500">Type</label>
+              <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="select">
                 <option value="">All types</option>
                 <option value="full-time">Full-time</option>
                 <option value="part-time">Part-time</option>
@@ -142,37 +165,45 @@ export default function Jobs() {
               </select>
             </div>
             {hasFilters && (
-              <button onClick={clearAll} className="btn-ghost btn-sm text-red-500 flex items-center gap-1">
-                <X size={14} /> Clear All
+              <button onClick={clearAll} className="px-4 py-3 text-sm font-semibold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors flex items-center justify-center gap-2 w-full sm:w-auto border border-transparent">
+                <X size={16} /> Clear All
               </button>
             )}
           </div>
-        )}
+        </div>
 
-        <div className="flex items-center justify-between mb-5">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Showing <span className="font-semibold text-brand-charcoal dark:text-white">{Math.min(visible, filtered.length)}</span> of <span className="font-semibold">{filtered.length}</span> jobs
-            {hasFilters && <span className="ml-2 badge-cyan badge">Filtered</span>}
-          </p>
-          {hasFilters && <button onClick={clearAll} className="text-xs text-red-500 hover:underline">Clear filters</button>}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-display font-bold text-brand-charcoal dark:text-white">Active Openings</h2>
+            <span className="px-2.5 py-1 rounded-md bg-gray-100 dark:bg-dark-surface text-gray-600 dark:text-gray-300 text-xs font-bold border border-gray-200 dark:border-gray-700">
+              {filtered.length} Jobs
+            </span>
+          </div>
+          {hasFilters && (
+            <button onClick={clearAll} className="text-sm font-medium text-brand-cyan hover:underline flex items-center gap-1">
+              <Sparkles size={14} /> Clear all filters
+            </button>
+          )}
         </div>
 
         {filtered.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-5xl mb-4">🔍</div>
-            <h3 className="text-lg font-semibold text-brand-charcoal dark:text-white mb-2">No jobs found</h3>
-            <p className="text-gray-400 text-sm mb-4">Try adjusting your search or filters.</p>
-            <button onClick={clearAll} className="btn-outline btn-sm">Clear Filters</button>
+          <div className="card py-20 text-center border-dashed border-2 border-gray-200 dark:border-gray-800 bg-transparent">
+            <div className="w-16 h-16 mx-auto bg-gray-100 dark:bg-dark-surface rounded-full flex items-center justify-center mb-4">
+              <Search size={24} className="text-gray-400" />
+            </div>
+            <h3 className="text-xl font-display font-bold text-brand-charcoal dark:text-white mb-2">No matches found in the network</h3>
+            <p className="text-gray-500 text-sm mb-6 max-w-sm mx-auto">Try adjusting your search criteria or clear filters to see more opportunities.</p>
+            <button onClick={clearAll} className="btn-outline">Clear All Filters</button>
           </div>
         ) : (
           <>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.slice(0, visible).map(job => <JobCard key={job.id} job={job} />)}
             </div>
             {visible < filtered.length && (
-              <div className="text-center mt-8">
-                <button onClick={() => setVisible(v => v + 6)} className="btn-outline">
-                  Load More <ChevronDown size={16} />
+              <div className="flex justify-center mt-12">
+                <button onClick={() => setVisible(v => v + 6)} className="btn-ghost border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface shadow-sm font-semibold px-6 py-3">
+                  Load More Jobs <ChevronDown size={16} className="ml-1 opacity-50" />
                 </button>
               </div>
             )}
