@@ -27,7 +27,7 @@ export default function Navbar() {
   }, [])
 
   return (
-    <header className={`sticky top-0 z-50 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-surface-border dark:border-dark-border transition-all duration-300 ${scrolled ? 'h-20' : 'h-32'}`}>
+    <header className={`sticky top-0 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-surface-border dark:border-dark-border transition-all duration-300 ${scrolled ? 'h-20' : 'h-32'} ${open ? 'z-[250]' : 'z-50'}`}>
       <div className="container-xl h-full">
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
@@ -99,12 +99,12 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <div className="flex items-center gap-2 lg:hidden">
-            <button onClick={toggle} className="p-2 rounded-full text-gray-500">
+            <button onClick={toggle} className="p-2 rounded-full text-gray-500 relative z-[110]">
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
             <button
               onClick={() => setOpen(!open)}
-              className="p-2 rounded-lg text-brand-charcoal dark:text-white"
+              className="p-2 rounded-lg text-brand-charcoal dark:text-white relative z-[110]"
             >
               {open ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -113,8 +113,11 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {open && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-white dark:bg-dark-bg py-8 px-6 border-t border-surface-border dark:border-dark-border shadow-2xl animate-fade-in z-[60]">
-            <nav className="flex flex-col gap-2">
+          <div className="lg:hidden fixed inset-0 bg-white dark:bg-dark-bg z-[100] animate-fade-in flex flex-col">
+            <div className="h-32 flex items-center px-6 border-b border-surface-border dark:border-dark-border">
+               <img src="/logo.png" alt="Firstdot Works" className="h-28 w-auto dark:invert dark:brightness-200 scale-125 object-contain" />
+            </div>
+            <nav className="flex-1 overflow-y-auto py-8 px-6 flex flex-col gap-2">
               {navLinks.map(l => (
                 <NavLink
                   key={l.to}
@@ -122,35 +125,36 @@ export default function Navbar() {
                   end={l.to === '/'}
                   onClick={() => setOpen(false)}
                   className={({ isActive }) =>
-                    `px-4 py-3 rounded-xl text-base font-semibold transition-colors ${
+                    `px-4 py-4 rounded-xl text-lg font-bold transition-all ${
                       isActive
                         ? 'text-brand-cyan bg-brand-cyan/5'
-                        : 'text-gray-600 hover:text-brand-charcoal hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
                     }`
                   }
                 >
                   {l.label}
                 </NavLink>
               ))}
-              <div className="pt-6 mt-4 border-t border-surface-border dark:border-dark-border flex flex-col gap-3 px-2">
+              
+              <div className="pt-8 mt-4 border-t border-surface-border dark:border-dark-border flex flex-col gap-4">
                 {currentUser ? (
                   <>
                     <button
                       onClick={() => { navigate(`/dashboard/${currentUser.role}`); setOpen(false) }}
-                      className="btn-outline w-full"
+                      className="btn-outline py-4 text-base"
                     >
                       Dashboard
                     </button>
-                    <button onClick={() => { logout(); setOpen(false) }} className="btn-ghost text-rose-500 w-full">
+                    <button onClick={() => { logout(); setOpen(false) }} className="btn-ghost text-rose-500 py-4 text-base">
                       Logout
                     </button>
                   </>
                 ) : (
                   <>
-                    <Link to="/login" className="btn-outline w-full justify-center" onClick={() => setOpen(false)}>
+                    <Link to="/login" className="btn-outline py-4 justify-center text-base" onClick={() => setOpen(false)}>
                       Login
                     </Link>
-                    <Link to="/contact" className="btn-primary w-full justify-center" onClick={() => setOpen(false)}>
+                    <Link to="/contact" className="btn-primary py-4 justify-center text-base" onClick={() => setOpen(false)}>
                       Get in Touch
                     </Link>
                   </>

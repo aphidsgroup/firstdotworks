@@ -168,9 +168,9 @@ export default function DashboardLayout({ role }) {
 
       {/* Mobile sidebar overlay */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
+        <div className="fixed inset-0 z-[200] flex md:hidden">
           <div className="absolute inset-0 bg-brand-charcoal/80 backdrop-blur-sm transition-opacity" onClick={() => setMobileOpen(false)} />
-          <div className="relative z-10 flex flex-col h-full animate-fade-in">
+          <div className="relative z-10 flex flex-col h-full animate-fade-in shadow-2xl">
             <Sidebar mobile />
           </div>
         </div>
@@ -181,7 +181,7 @@ export default function DashboardLayout({ role }) {
 
 
         {/* Top bar */}
-        <header className="h-20 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-surface-border dark:border-dark-border flex items-center px-6 gap-4 flex-shrink-0 z-[50]">
+        <header className="h-20 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-surface-border dark:border-dark-border flex items-center px-6 gap-4 flex-shrink-0 z-[150]">
           {/* Mobile menu button */}
           <button
             className="md:hidden p-2 -ml-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-dark-surface transition-colors"
