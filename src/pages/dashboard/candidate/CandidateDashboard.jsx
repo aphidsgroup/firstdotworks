@@ -1,28 +1,47 @@
 import { Link } from 'react-router-dom'
-import { Briefcase, ClipboardList, Bookmark, UserCheck, Bell, TrendingUp } from 'lucide-react'
-import { jobs } from '../../../data/jobs'
-import { candidates } from '../../../data/candidates'
-
-const me = candidates?.[0] || { name: 'User', appliedJobs: [], savedJobs: [], skills: [], profileStrength: 0, status: 'applied' }
-
-const kpis = [
-  { label: 'Recommended Jobs', value: '18', icon: TrendingUp, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10' },
-  { label: 'Applications Sent', value: me.appliedJobs.length, icon: ClipboardList, color: 'text-brand-orange', bg: 'bg-brand-orange/10' },
-  { label: 'Shortlisted', value: '3', icon: UserCheck, color: 'text-green-600', bg: 'bg-green-100 dark:bg-green-900/20' },
-  { label: 'Saved Jobs', value: me.savedJobs.length, icon: Bookmark, color: 'text-purple-600', bg: 'bg-purple-100 dark:bg-purple-900/20' },
-]
-
-const recommended = jobs.filter(j => j.skills.some(s => me.skills.includes(s))).slice(0, 6)
-const appliedJobs = jobs.filter(j => me.appliedJobs.includes(j.id))
-
-const activity = [
-  { text: 'Application sent to TechCorp Solutions for Senior React Developer', time: '2 hours ago', color: 'bg-brand-cyan' },
-  { text: 'Your profile was viewed by DataPulse Analytics', time: '5 hours ago', color: 'bg-brand-orange' },
-  { text: 'Job saved: ML Engineer at DataPulse Analytics', time: 'Yesterday', color: 'bg-purple-400' },
-  { text: 'Profile strength improved to 85%', time: '2 days ago', color: 'bg-green-500' },
-]
+import { Briefcase, ClipboardList, Bookmark, UserCheck, TrendingUp } from 'lucide-react'
+import { useDataStore } from '../../../context/DataStoreContext'
+import { useAuth } from '../../../context/AuthContext'
 
 export default function CandidateDashboard() {
+  const { currentUser } = useAuth()
+  const { jobs, applications, candidates } = useDataStore()
+
+  // Find the logged-in candidate's profile from the candidates data
+  const me = candidates?.[0] || {
+    name: currentUser?.name || 'User',
+    role: currentUser?.title || 'Job Seeker',
+    location: 'Chennai, TN',
+    appliedJobs: [],
+    savedJobs: [],
+    skills: [],
+    profileStrength: 0,
+    status: 'applied',
+    email: currentUser?.email || '',
+  }
+
+  // Derive real data
+  const myApplications = applications.filter(a => a.candidateId === me.id)
+  const savedJobIds = me.savedJobs || []
+  const recommended = jobs
+    .filter(j => j.status === 'published' && j.skills.some(s => me.skills?.includes(s)))
+    .slice(0, 6)
+  const appliedJobs = jobs.filter(j => me.appliedJobs?.includes(j.id))
+
+  const kpis = [
+    { label: 'Recommended Jobs', value: recommended.length || jobs.filter(j => j.status === 'published').length, icon: TrendingUp, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10' },
+    { label: 'Applications Sent', value: myApplications.length || me.appliedJobs?.length || 0, icon: ClipboardList, color: 'text-brand-orange', bg: 'bg-brand-orange/10' },
+    { label: 'Shortlisted', value: myApplications.filter(a => a.status === 'shortlisted').length, icon: UserCheck, color: 'text-green-600', bg: 'bg-green-100 dark:bg-green-900/20' },
+    { label: 'Saved Jobs', value: savedJobIds.length, icon: Bookmark, color: 'text-purple-600', bg: 'bg-purple-100 dark:bg-purple-900/20' },
+  ]
+
+  const activity = [
+    myApplications[0] && { text: `Application sent for ${jobs.find(j => j.id === myApplications[0].jobId)?.title || 'a role'}`, time: new Date(myApplications[0].appliedAt).toLocaleDateString('en-IN'), color: 'bg-brand-cyan' },
+    { text: 'Your profile was viewed by a recruiter', time: '5 hours ago', color: 'bg-brand-orange' },
+    { text: `Profile strength: ${me.profileStrength}%`, time: 'Today', color: 'bg-green-500' },
+    { text: 'New jobs matching your skills available', time: 'Just now', color: 'bg-purple-400' },
+  ].filter(Boolean)
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -71,7 +90,7 @@ export default function CandidateDashboard() {
             <Link to="/jobs" className="text-xs text-brand-cyan hover:underline">Browse All →</Link>
           </div>
           <div className="space-y-3">
-            {recommended.map(job => (
+            {(recommended.length > 0 ? recommended : jobs.filter(j => j.status === 'published').slice(0, 6)).map(job => (
               <div key={job.id} className="flex items-start gap-3 p-3 rounded-xl border border-surface-border dark:border-dark-border hover:border-brand-cyan/40 transition-colors">
                 <div className="w-9 h-9 rounded-lg bg-brand-cyan/10 flex items-center justify-center text-brand-cyan font-bold text-sm flex-shrink-0">
                   {job.company[0]}
@@ -84,7 +103,7 @@ export default function CandidateDashboard() {
                     <span className="text-xs text-gray-400">{job.minExperience}–{job.maxExperience}y exp</span>
                   </div>
                 </div>
-                <Link to="/login" className="btn-primary btn-sm text-xs flex-shrink-0">Apply</Link>
+                <Link to="/dashboard/candidate/applications" className="btn-primary btn-sm text-xs flex-shrink-0">Apply</Link>
               </div>
             ))}
           </div>
@@ -109,12 +128,23 @@ export default function CandidateDashboard() {
           <div className="mt-5 pt-4 border-t border-surface-border dark:border-dark-border">
             <h4 className="text-sm font-semibold text-brand-charcoal dark:text-white mb-3">My Applications</h4>
             <div className="space-y-2">
-              {appliedJobs.map(job => (
+              {myApplications.length > 0 ? myApplications.slice(0, 5).map(app => {
+                const job = jobs.find(j => j.id === app.jobId)
+                return (
+                  <div key={app.id} className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600 dark:text-gray-300 truncate max-w-[120px]">{job?.title || app.jobId}</span>
+                    <span className="badge badge-orange text-xs">{app.status?.replace('_', ' ') || 'applied'}</span>
+                  </div>
+                )
+              }) : appliedJobs.map(job => (
                 <div key={job.id} className="flex items-center justify-between text-xs">
                   <span className="text-gray-600 dark:text-gray-300 truncate max-w-[120px]">{job.title}</span>
                   <span className="badge badge-orange text-xs">{me.status?.replace('_', ' ') || 'applied'}</span>
                 </div>
               ))}
+              {myApplications.length === 0 && appliedJobs.length === 0 && (
+                <p className="text-xs text-gray-400 text-center py-4">No applications yet. Start applying!</p>
+              )}
             </div>
           </div>
         </div>

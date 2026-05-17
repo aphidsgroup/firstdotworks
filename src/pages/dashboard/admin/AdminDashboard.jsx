@@ -1,31 +1,49 @@
 import { Briefcase, Users, Building2, ClipboardList, TrendingUp, UserCheck, Calendar, Activity } from 'lucide-react'
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, FunnelChart, Funnel, LabelList } from 'recharts'
-import { candidates } from '../../../data/candidates'
-import { jobs } from '../../../data/jobs'
-import { employers } from '../../../data/employers'
-import { applications, applicationTrend, hiringFunnel } from '../../../data/applications'
-
-const kpis = [
-  { label: 'Active Jobs', value: '124', change: '+8 this week', icon: Briefcase, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10', border: 'hover:border-brand-cyan/50', shadow: 'hover:shadow-glow-cyan' },
-  { label: 'Total Candidates', value: '2,450', change: '+37 this week', icon: Users, color: 'text-brand-orange', bg: 'bg-brand-orange/10', border: 'hover:border-brand-orange/50', shadow: 'hover:shadow-glow-orange' },
-  { label: 'Active Clients', value: '38', change: '7 active mandates', icon: Building2, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10', border: 'hover:border-brand-cyan/50', shadow: 'hover:shadow-glow-cyan' },
-  { label: 'New Applications', value: '318', change: '+42 today', icon: ClipboardList, color: 'text-brand-orange', bg: 'bg-brand-orange/10', border: 'hover:border-brand-orange/50', shadow: 'hover:shadow-glow-orange' },
-  { label: 'Shortlisted', value: '74', change: '23% conversion', icon: UserCheck, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10', border: 'hover:border-brand-cyan/50', shadow: 'hover:shadow-glow-cyan' },
-  { label: 'Interviews', value: '16', change: '5 this week', icon: Calendar, color: 'text-brand-orange', bg: 'bg-brand-orange/10', border: 'hover:border-brand-orange/50', shadow: 'hover:shadow-glow-orange' },
-]
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { useDataStore } from '../../../context/DataStoreContext'
+import { applicationTrend, hiringFunnel } from '../../../data/applications'
 
 const COLORS = ['#29ABE2', '#F7941D', '#0B0F19', '#1E293B', '#334155']
 
-const jobStatusData = [
-  { name: 'Published', value: 18 },
-  { name: 'Draft', value: 4 },
-  { name: 'Closed', value: 7 },
-  { name: 'On Hold', value: 2 },
-]
-
-const recentApps = applications.slice(0, 8)
-
 export default function AdminDashboard() {
+  const { jobs, candidates, employers, applications } = useDataStore()
+
+  // ── Derived KPI values from real data ────────────────────────────────────
+  const activeJobs = jobs.filter(j => j.status === 'published').length
+  const totalCandidates = candidates.length
+  const activeEmployers = employers.filter(e => e.status === 'active').length
+  const newApplications = applications.length
+  const shortlisted = applications.filter(a => a.status === 'shortlisted').length
+  const interviews = applications.filter(a => a.status === 'interview_scheduled').length
+  const shortlistPct = newApplications > 0 ? Math.round((shortlisted / newApplications) * 100) : 0
+
+  const kpis = [
+    { label: 'Active Jobs', value: activeJobs.toString(), change: `${jobs.filter(j => j.status === 'published').length} published`, icon: Briefcase, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10', border: 'hover:border-brand-cyan/50', shadow: 'hover:shadow-glow-cyan' },
+    { label: 'Total Candidates', value: totalCandidates.toLocaleString(), change: `${candidates.filter(c => c.openToWork).length} open to work`, icon: Users, color: 'text-brand-orange', bg: 'bg-brand-orange/10', border: 'hover:border-brand-orange/50', shadow: 'hover:shadow-glow-orange' },
+    { label: 'Active Clients', value: activeEmployers.toString(), change: `${employers.length} total partners`, icon: Building2, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10', border: 'hover:border-brand-cyan/50', shadow: 'hover:shadow-glow-cyan' },
+    { label: 'Applications', value: newApplications.toString(), change: `${applications.filter(a => a.status === 'applied').length} pending review`, icon: ClipboardList, color: 'text-brand-orange', bg: 'bg-brand-orange/10', border: 'hover:border-brand-orange/50', shadow: 'hover:shadow-glow-orange' },
+    { label: 'Shortlisted', value: shortlisted.toString(), change: `${shortlistPct}% conversion`, icon: UserCheck, color: 'text-brand-cyan', bg: 'bg-brand-cyan/10', border: 'hover:border-brand-cyan/50', shadow: 'hover:shadow-glow-cyan' },
+    { label: 'Interviews', value: interviews.toString(), change: `${applications.filter(a => a.status === 'selected').length} selected`, icon: Calendar, color: 'text-brand-orange', bg: 'bg-brand-orange/10', border: 'hover:border-brand-orange/50', shadow: 'hover:shadow-glow-orange' },
+  ]
+
+  const jobStatusData = [
+    { name: 'Published', value: jobs.filter(j => j.status === 'published').length },
+    { name: 'Draft', value: jobs.filter(j => j.status === 'draft').length },
+    { name: 'Closed', value: jobs.filter(j => j.status === 'closed').length },
+    { name: 'On Hold', value: jobs.filter(j => j.status === 'on_hold').length },
+  ].filter(d => d.value > 0)
+
+  const recentApps = applications.slice(0, 8)
+
+  const statusColor = {
+    applied: 'badge-gray',
+    screened: 'badge-cyan',
+    shortlisted: 'badge-purple',
+    interview_scheduled: 'badge-orange',
+    selected: 'badge-green',
+    rejected: 'badge-red',
+  }
+
   return (
     <div className="space-y-8 animate-fade-in pb-8">
       {/* Page header */}
@@ -113,7 +131,7 @@ export default function AdminDashboard() {
                     style={{ width: `${(stage.count / (hiringFunnel?.[0]?.count || 1)) * 100}%`, background: COLORS[i % 2 === 0 ? 0 : 1] }}
                   />
                   <div className="absolute top-0 left-0 w-full h-full flex items-center px-4 text-xs font-bold text-white z-10 drop-shadow-md">
-                    {stage.count} Nodes
+                    {stage.count}
                   </div>
                 </div>
               </div>
@@ -147,14 +165,14 @@ export default function AdminDashboard() {
       {/* Recent Applications Table */}
       <div className="card bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 p-6 overflow-hidden">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400">Recent Transmissions</h3>
-          <a href="#" className="text-xs font-bold uppercase tracking-wider text-brand-cyan hover:text-brand-orange transition-colors">View All Archive →</a>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400">Recent Applications</h3>
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-cyan">{applications.length} total</span>
         </div>
         <div className="table-wrapper -mx-6 mb-0 border-t border-gray-100 dark:border-gray-800/50">
           <table className="table w-full">
             <thead className="bg-gray-50 dark:bg-dark-bg border-b border-gray-100 dark:border-gray-800/50">
               <tr>
-                {['Node Identifier', 'Job ID', 'Status', 'Timestamp', 'Ops Note'].map(h => (
+                {['Candidate', 'Job ID', 'Status', 'Applied On', 'Recruiter Note'].map(h => (
                   <th key={h} className="th px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">{h}</th>
                 ))}
               </tr>
@@ -162,10 +180,9 @@ export default function AdminDashboard() {
             <tbody className="bg-white dark:bg-dark-surface divide-y divide-gray-100 dark:divide-gray-800/50">
               {recentApps.map(app => {
                 const cand = candidates.find(c => c.id === app.candidateId)
-                const statusColor = { applied: 'badge-gray', screened: 'badge-cyan', shortlisted: 'badge-purple', interview_scheduled: 'badge-orange', selected: 'badge-green', rejected: 'badge-red' }
                 return (
                   <tr key={app.id} className="tr-hover hover:bg-gray-50 dark:hover:bg-dark-bg transition-colors">
-                    <td className="td px-6 py-4 font-bold text-brand-charcoal dark:text-white text-sm">{cand?.name}</td>
+                    <td className="td px-6 py-4 font-bold text-brand-charcoal dark:text-white text-sm">{cand?.name || app.candidateId}</td>
                     <td className="td px-6 py-4 text-gray-400 text-xs font-medium uppercase tracking-wider">{app.jobId}</td>
                     <td className="td px-6 py-4"><span className={`badge ${statusColor[app.status] || 'badge-gray'} px-3 py-1 font-bold text-[10px] uppercase tracking-wider`}>{app.status?.replace('_', ' ') || 'applied'}</span></td>
                     <td className="td px-6 py-4 text-gray-400 text-xs font-medium">{new Date(app.appliedAt).toLocaleDateString('en-IN')}</td>

@@ -87,7 +87,7 @@ export default function Home() {
             <div className="max-w-2xl animate-slide-up">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-brand-charcoal dark:text-gray-200 text-xs font-bold uppercase tracking-wider mb-8">
                 <span className="w-2 h-2 rounded-full bg-brand-cyan animate-pulse-slow shadow-glow-cyan"></span>
-                Next-Gen Recruitment
+                Tradition You Trust, Growth You Deserve.
               </div>
               
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold text-brand-charcoal dark:text-white leading-[1.1] mb-8">

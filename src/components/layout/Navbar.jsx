@@ -37,13 +37,13 @@ export default function Navbar() {
 
   return (
     <>
-      <header className={`sticky top-0 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-surface-border dark:border-dark-border transition-all duration-300 ${scrolled ? 'h-20' : 'h-32'} ${open ? 'z-[100]' : 'z-50'}`}>
+      <header className={`sticky top-0 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-surface-border dark:border-dark-border transition-all duration-300 ${scrolled ? 'h-20' : 'h-28'} ${open ? 'z-[100]' : 'z-50'}`}>
         <div className="container-xl h-full">
           <div className="flex items-center justify-between h-full">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 relative group">
               <div className="absolute -inset-2 bg-brand-cyan/0 group-hover:bg-brand-cyan/5 rounded-full blur-md transition-all duration-500"></div>
-              <img src="/logo.png" alt="Firstdot Works" className={`${scrolled ? 'h-16' : 'h-28'} w-auto relative z-10 transition-all duration-500 dark:invert dark:brightness-200 scale-125 object-contain`} />
+              <img src="/logo.png" alt="Firstdot Works" className={`${scrolled ? 'h-16' : 'h-24'} w-auto relative z-10 transition-all duration-500 dark:invert dark:brightness-200 object-contain`} />
             </Link>
 
             {/* Desktop nav */}
@@ -134,8 +134,8 @@ export default function Navbar() {
           
           {/* Menu Drawer */}
           <div className="relative w-[85%] max-w-sm h-full bg-white dark:bg-[#0B0F19] shadow-2xl flex flex-col animate-slide-right border-r border-surface-border dark:border-dark-border">
-            <div className="h-32 flex items-center px-8 border-b border-surface-border dark:border-dark-border bg-gray-50/50 dark:bg-white/5">
-               <img src="/logo.png" alt="Firstdot Works" className="h-28 w-auto dark:invert dark:brightness-200 scale-125 object-contain" />
+            <div className="h-28 flex items-center px-8 border-b border-surface-border dark:border-dark-border bg-gray-50/50 dark:bg-white/5">
+               <img src="/logo.png" alt="Firstdot Works" className="h-24 w-auto dark:invert dark:brightness-200 object-contain" />
             </div>
             
             <nav className="flex-1 overflow-y-auto py-10 px-8 flex flex-col gap-3">

@@ -11,10 +11,11 @@ export default function FloatingChat() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [showAutoMessage, setShowAutoMessage] = useState(false);
   const [inputText, setInputText] = useState('');
+  const [pollTick, setPollTick] = useState(0);
   const scrollRef = useRef(null);
 
   const sessionMessages = getSessionMessages(anonymousId);
-  
+
   useEffect(() => {
     if (settings?.chatEnabled) {
       const timer = setTimeout(() => {
@@ -24,11 +25,17 @@ export default function FloatingChat() {
     }
   }, [settings?.chatEnabled]);
 
+  // Poll every 2 seconds to pick up admin replies
+  useEffect(() => {
+    const interval = setInterval(() => setPollTick(t => t + 1), 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [sessionMessages.length]);
+  }, [sessionMessages.length, pollTick]);
 
   if (pathname.startsWith('/dashboard/admin')) return null;
   if (!settings) return null;

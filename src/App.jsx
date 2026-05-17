@@ -4,9 +4,10 @@ import { ThemeProvider } from './context/ThemeContext'
 import { SiteSettingsProvider } from './context/SiteSettingsContext'
 import { ChatProvider } from './context/ChatContext'
 import { NotificationProvider } from './context/NotificationContext'
+import { DataStoreProvider } from './context/DataStoreContext'
 import { useEffect } from 'react'
 import FloatingChat from './components/FloatingChat'
-
+import ErrorBoundary from './components/ErrorBoundary'
 
 // Public layout wrapper
 import Navbar from './components/layout/Navbar'
@@ -81,8 +82,8 @@ function AppRoutes() {
     <Routes>
       {/* Public pages */}
       <Route path="/" element={
-        currentUser?.role 
-          ? <Navigate to={`/dashboard/${currentUser.role}`} replace /> 
+        currentUser?.role
+          ? <Navigate to={`/dashboard/${currentUser.role}`} replace />
           : <PublicLayout><Home /></PublicLayout>
       } />
       <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
@@ -145,20 +146,24 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <SiteSettingsProvider>
-        <NotificationProvider>
-          <ChatProvider>
-            <AuthProvider>
-              <BrowserRouter>
-                <ScrollToTop />
-                <AppRoutes />
-                <FloatingChat />
-              </BrowserRouter>
-            </AuthProvider>
-          </ChatProvider>
-        </NotificationProvider>
-      </SiteSettingsProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <SiteSettingsProvider>
+          <NotificationProvider>
+            <ChatProvider>
+              <DataStoreProvider>
+                <AuthProvider>
+                  <BrowserRouter>
+                    <ScrollToTop />
+                    <AppRoutes />
+                    <FloatingChat />
+                  </BrowserRouter>
+                </AuthProvider>
+              </DataStoreProvider>
+            </ChatProvider>
+          </NotificationProvider>
+        </SiteSettingsProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   )
 }

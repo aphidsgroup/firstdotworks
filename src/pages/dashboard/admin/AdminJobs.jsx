@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Plus, Edit, Eye, Trash2, Search, Filter, X, CheckCircle, Briefcase, Activity, Download, CheckSquare, Square, ShieldCheck } from 'lucide-react'
-import { jobs, formatSalary } from '../../../data/jobs'
+import { formatSalary } from '../../../data/jobs'
 import DataPortal from '../../../components/DataPortal'
+import { useDataStore } from '../../../context/DataStoreContext'
 
 const JOB_COLUMNS = [
   { label: 'Title', accessor: 'title' },
@@ -22,7 +23,7 @@ const JOB_COLUMNS = [
 
 const statusColors = { published: 'bg-green-500/10 text-green-500 border-green-500/20', draft: 'bg-gray-500/10 text-gray-500 border-gray-500/20', closed: 'bg-red-500/10 text-red-500 border-red-500/20' }
 
-function JobPostingModal({ onClose, job = null }) {
+function JobPostingModal({ onClose, job = null, onSave }) {
   const [form, setForm] = useState(job ? {
     title: job.title,
     company: job.company,
@@ -43,8 +44,25 @@ function JobPostingModal({ onClose, job = null }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    const data = {
+      title: form.title,
+      company: form.company,
+      location: form.location,
+      minExperience: Number(form.minExp),
+      maxExperience: Number(form.maxExp),
+      minSalary: Number(form.minSalary),
+      maxSalary: Number(form.maxSalary),
+      employmentType: form.type,
+      workMode: form.mode,
+      department: form.department,
+      skills: form.skills.split(',').map(s => s.trim()).filter(Boolean),
+      description: form.description,
+      openings: Number(form.openings),
+      deadline: form.deadline ? `${form.deadline}T00:00:00.000Z` : null,
+    }
+    onSave(data)
     setSuccess(true)
-    setTimeout(() => { setSuccess(false); onClose() }, 2000)
+    setTimeout(() => { setSuccess(false); onClose() }, 1800)
   }
 
   return (
@@ -152,6 +170,7 @@ function JobPostingModal({ onClose, job = null }) {
 }
 
 export default function AdminJobs() {
+  const { jobs, addJob, updateJob, deleteJob, bulkUpdateJobStatus } = useDataStore()
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [selectedJob, setSelectedJob] = useState(null)
@@ -192,7 +211,7 @@ export default function AdminJobs() {
 
   const handleBulkDelete = () => {
     if (window.confirm(`Terminate ${selectedIds.length} mandates?`)) {
-      alert(`Simulated termination of Mandate IDs: ${selectedIds.join(', ')}`)
+      selectedIds.forEach(id => deleteJob(id))
       setSelectedIds([])
     }
   }
@@ -209,7 +228,17 @@ export default function AdminJobs() {
 
   return (
     <div className="space-y-6 animate-fade-in pb-8">
-      {showModal && <JobPostingModal onClose={() => { setShowModal(false); setSelectedJob(null); }} job={selectedJob} />}
+      {showModal && <JobPostingModal
+    onClose={() => { setShowModal(false); setSelectedJob(null); }}
+    job={selectedJob}
+    onSave={(data) => {
+      if (selectedJob) {
+        updateJob(selectedJob.id, data)
+      } else {
+        addJob(data)
+      }
+    }}
+  />}
 
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -276,7 +305,7 @@ export default function AdminJobs() {
                     <div className="flex items-center gap-1">
                       <button onClick={() => handleEdit(job)} className="p-2 rounded-lg hover:bg-brand-cyan/10 text-gray-400 hover:text-brand-cyan transition-colors" title="Inspect"><Eye size={16} /></button>
                       <button onClick={() => handleEdit(job)} className="p-2 rounded-lg hover:bg-brand-orange/10 text-gray-400 hover:text-brand-orange transition-colors" title="Modify"><Edit size={16} /></button>
-                      <button className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-500 transition-colors" title="Terminate"><Trash2 size={16} /></button>
+                      <button onClick={() => { if (window.confirm('Terminate mandate?')) deleteJob(job.id) }} className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-500 transition-colors" title="Terminate"><Trash2 size={16} /></button>
                     </div>
                   </td>
                 </tr>
@@ -304,8 +333,8 @@ export default function AdminJobs() {
               </button>
               <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-48 bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 text-brand-charcoal dark:text-white">
                  {['published', 'draft', 'closed'].map(s => (
-                   <button key={s} onClick={() => { alert(`Bulk transitioned ${selectedIds.length} to ${s}`); setSelectedIds([]) }} className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors">{s}</button>
-                 ))}
+                <button key={s} onClick={() => { bulkUpdateJobStatus(selectedIds, s); setSelectedIds([]) }} className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors">{s}</button>
+              ))}
               </div>
             </div>
             <button onClick={handleBulkDelete} className="flex items-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-rose-500/20">

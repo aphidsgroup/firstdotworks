@@ -1,9 +1,9 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, Filter, MapPin, Briefcase, Clock, ChevronDown, Bookmark, ArrowRight, X, Sparkles, Loader2, CheckCircle } from 'lucide-react'
+import { Search, Filter, MapPin, Briefcase, Clock, ChevronDown, Bookmark, X, Sparkles, Loader2, CheckCircle } from 'lucide-react'
 import { formatSalary } from '../../data/jobs'
 import { useAuth } from '../../context/AuthContext'
-import sql from '../../lib/neon'
+import { useDataStore } from '../../context/DataStoreContext'
 
 const workModeColors = { hybrid: 'badge-cyan', remote: 'badge-green', onsite: 'badge-gray' }
 const typeColors = { 'full-time': 'badge-cyan', 'part-time': 'badge-orange', contract: 'badge-gray' }
@@ -94,9 +94,7 @@ function JobCard({ job }) {
 }
 
 export default function Jobs() {
-  const [jobs, setJobs] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { jobs: allJobs } = useDataStore()
   const [search, setSearch] = useState('')
   const [locationFilter, setLocationFilter] = useState('')
   const [modeFilter, setModeFilter] = useState('')
@@ -105,24 +103,8 @@ export default function Jobs() {
   const [visible, setVisible] = useState(9)
   const [showFilters, setShowFilters] = useState(false)
 
-  useEffect(() => {
-    async function fetchJobs() {
-      try {
-        setLoading(true)
-        const data = await sql`SELECT * FROM jobs WHERE status = 'published' ORDER BY posted_at DESC`
-        // Transform DB snake_case to JS camelCase if needed, but we used camelCase in seeding
-        setJobs(data)
-      } catch (err) {
-        console.error('Failed to fetch from Neon, falling back to mock data:', err)
-        // Fallback to mock data for reliability
-        const { jobs: mockJobs } = await import('../../data/jobs')
-        setJobs(mockJobs)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchJobs()
-  }, [])
+  // Only show published jobs on the public page
+  const jobs = allJobs.filter(j => j.status === 'published')
 
   const filtered = useMemo(() => {
     return jobs.filter(j => {
@@ -134,7 +116,7 @@ export default function Jobs() {
       const matchExp = !expFilter || (expFilter === '0-2' ? j.maxExperience <= 2 : expFilter === '3-5' ? j.minExperience >= 3 && j.maxExperience <= 5 : j.minExperience >= 6)
       return matchSearch && matchLoc && matchMode && matchType && matchExp
     })
-  }, [search, locationFilter, modeFilter, expFilter, typeFilter])
+  }, [search, locationFilter, modeFilter, expFilter, typeFilter, jobs])
 
   const hasFilters = search || locationFilter || modeFilter || expFilter || typeFilter
   const clearAll = () => { setSearch(''); setLocationFilter(''); setModeFilter(''); setExpFilter(''); setTypeFilter('') }
@@ -240,7 +222,7 @@ export default function Jobs() {
           )}
         </div>
 
-        {loading ? (
+        {jobs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-gray-400">
             <Loader2 size={40} className="animate-spin mb-4 text-brand-cyan" />
             <p className="font-medium animate-pulse">Syncing with Talent Network...</p>

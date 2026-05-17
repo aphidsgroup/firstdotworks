@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { Search, Filter, Activity, Download, CheckSquare, Square, ShieldCheck, Trash2, X } from 'lucide-react'
-import { applications } from '../../../data/applications'
-import { candidates, statusColors, statusLabels } from '../../../data/candidates'
-import { jobs } from '../../../data/jobs'
+import { statusLabels } from '../../../data/candidates'
 import DataPortal from '../../../components/DataPortal'
+import { useDataStore } from '../../../context/DataStoreContext'
 
-const APP_COLUMNS = [
+const makeAppColumns = (candidates, jobs) => [
   { label: 'Candidate Name', accessor: a => candidates.find(c => c.id === a.candidateId)?.name || a.candidateId },
   { label: 'Role Applied', accessor: a => candidates.find(c => c.id === a.candidateId)?.role || '' },
   { label: 'Job Title', accessor: a => jobs.find(j => j.id === a.jobId)?.title || a.jobId },
@@ -25,9 +24,12 @@ const premiumStatusColors = {
 }
 
 export default function AdminApplications() {
+  const { applications, candidates, jobs, updateApplicationStatus, bulkUpdateApplicationStatus } = useDataStore()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [selectedIds, setSelectedIds] = useState([])
+  const [syncStatus, setSyncStatus] = useState({}) // { [appId]: 'saving' | 'saved' }
+  const [pendingStatus, setPendingStatus] = useState({}) // { [appId]: newStatus }
 
   const filtered = applications.filter(a => {
     const cand = candidates.find(c => c.id === a.candidateId)
@@ -79,6 +81,15 @@ export default function AdminApplications() {
     }
   }
 
+  const handleSync = (appId) => {
+    const newStatus = pendingStatus[appId]
+    if (!newStatus) return
+    setSyncStatus(prev => ({ ...prev, [appId]: 'saving' }))
+    updateApplicationStatus(appId, newStatus)
+    setTimeout(() => setSyncStatus(prev => ({ ...prev, [appId]: 'saved' })), 600)
+    setTimeout(() => setSyncStatus(prev => { const n = {...prev}; delete n[appId]; return n }), 2000)
+  }
+
   return (
     <div className="space-y-6 animate-fade-in pb-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -89,7 +100,7 @@ export default function AdminApplications() {
           <h1 className="text-3xl md:text-4xl font-display font-bold text-brand-charcoal dark:text-white tracking-tight">Transmission Flow</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">{applications.length} total active nodes tracked</p>
         </div>
-        <DataPortal title="Application Pipeline" rows={applications} columns={APP_COLUMNS} />
+        <DataPortal title="Application Pipeline" rows={applications} columns={makeAppColumns(candidates, jobs)} />
       </div>
 
       <div className="card bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 p-6 overflow-hidden">
@@ -151,10 +162,24 @@ export default function AdminApplications() {
                     <td className="td px-6 py-4 text-xs font-medium text-gray-500 max-w-[200px] truncate">{a.recruiterNote || '—'}</td>
                     <td className="td px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <select className="select text-[10px] font-bold uppercase tracking-wider py-1.5 h-9 bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800 w-32">
-                          {stages.map(s => <option key={s} value={s} selected={s === a.status}>{statusLabels[s]}</option>)}
+                        <select
+                          className="select text-[10px] font-bold uppercase tracking-wider py-1.5 h-9 bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800 w-32"
+                          value={pendingStatus[a.id] || a.status}
+                          onChange={e => setPendingStatus(prev => ({ ...prev, [a.id]: e.target.value }))}
+                        >
+                          {stages.map(s => <option key={s} value={s}>{statusLabels[s]}</option>)}
                         </select>
-                        <button className="h-9 px-3 rounded-lg bg-brand-orange/10 text-brand-orange border border-brand-orange/20 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-orange hover:text-white transition-all">Sync</button>
+                        <button
+                          onClick={() => handleSync(a.id)}
+                          disabled={!pendingStatus[a.id] || pendingStatus[a.id] === a.status}
+                          className={`h-9 px-3 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                            syncStatus[a.id] === 'saved'
+                              ? 'bg-green-500/10 text-green-500 border border-green-500/20'
+                              : 'bg-brand-orange/10 text-brand-orange border border-brand-orange/20 hover:bg-brand-orange hover:text-white'
+                          }`}
+                        >
+                          {syncStatus[a.id] === 'saving' ? '...' : syncStatus[a.id] === 'saved' ? '✓ Synced' : 'Sync'}
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -183,8 +208,8 @@ export default function AdminApplications() {
               </button>
               <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-48 bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 text-brand-charcoal dark:text-white">
                  {stages.map(s => (
-                   <button key={s} onClick={() => { alert(`Bulk transitioned ${selectedIds.length} to ${s}`); setSelectedIds([]) }} className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors">{statusLabels[s]}</button>
-                 ))}
+                <button key={s} onClick={() => { bulkUpdateApplicationStatus(selectedIds, s); setSelectedIds([]) }} className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors">{statusLabels[s]}</button>
+              ))}
               </div>
             </div>
             <button onClick={handleBulkDelete} className="flex items-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-rose-500/20">

@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
-import { Search, Eye, FileText, ChevronRight, Activity, Filter, ShieldCheck, Trash2, Download, CheckSquare, Square, MoreHorizontal, X } from 'lucide-react'
-import { candidates, statusColors, statusLabels } from '../../../data/candidates'
+import { Search, Eye, FileText, ChevronRight, Activity, Filter, ShieldCheck, Trash2, Download, CheckSquare, Square, MoreHorizontal, X, CheckCircle } from 'lucide-react'
+import { statusColors, statusLabels } from '../../../data/candidates'
 import DataPortal from '../../../components/DataPortal'
+import { useDataStore } from '../../../context/DataStoreContext'
 
 const CANDIDATE_COLUMNS = [
   { label: 'Full Name', accessor: 'name' },
@@ -31,26 +32,28 @@ const premiumStatusColors = {
 const stages = ['applied', 'screened', 'shortlisted', 'interview_scheduled', 'selected', 'rejected']
 
 export default function AdminCandidates() {
+  const { candidates, updateCandidateStatus, bulkUpdateCandidateStatus } = useDataStore()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [locFilter, setLocFilter] = useState('')
   const [joinedToday, setJoinedToday] = useState(false)
   const [selected, setSelected] = useState(null)
   const [selectedIds, setSelectedIds] = useState([])
+  const [selectedStatus, setSelectedStatus] = useState('')
+  const [transitioning, setTransitioning] = useState(false)
+  const [transitionSuccess, setTransitionSuccess] = useState(false)
 
   const filtered = useMemo(() => {
-    return candidates.filter(c => {
+    return candidates.filter((c, idx) => {
       const q = search.toLowerCase()
       const matchQ = !q || c.name.toLowerCase().includes(q) || c.role.toLowerCase().includes(q) || c.skills.some(s => s.toLowerCase().includes(q))
       const matchStatus = !statusFilter || c.status === statusFilter
       const matchLoc = !locFilter || c.location.toLowerCase().includes(locFilter.toLowerCase())
-      
-      // Mock joined today logic - filtering out some for demo if checked
-      const matchToday = !joinedToday || c.id % 2 === 0 // using even IDs as proxy for "today" in this static data
-      
+      // Fix: use array index (even indices) instead of string ID modulo
+      const matchToday = !joinedToday || idx % 2 === 0
       return matchQ && matchStatus && matchLoc && matchToday
     })
-  }, [search, statusFilter, locFilter, joinedToday])
+  }, [search, statusFilter, locFilter, joinedToday, candidates])
 
   const toggleSelectAll = () => {
     if (selectedIds.length === filtered.length) {
@@ -89,6 +92,15 @@ export default function AdminCandidates() {
       alert(`Simulated deletion of IDs: ${selectedIds.join(', ')}`)
       setSelectedIds([])
     }
+  }
+
+  const handleConfirmTransition = () => {
+    if (!selected || !selectedStatus || selectedStatus === selected.status) return
+    setTransitioning(true)
+    updateCandidateStatus(selected.id, selectedStatus)
+    setSelected(prev => ({ ...prev, status: selectedStatus }))
+    setTransitionSuccess(true)
+    setTimeout(() => { setTransitioning(false); setTransitionSuccess(false) }, 1500)
   }
 
   return (
@@ -223,13 +235,23 @@ export default function AdminCandidates() {
               </div>
 
               <div className="mt-auto pt-6">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Shift State</label>
-                <select className="select w-full mb-4 bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800 text-xs font-bold uppercase tracking-wider h-11">
-                  {stages.map(s => <option key={s} value={s} selected={s === selected.status}>{statusLabels[s]}</option>)}
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Update Status</label>
+                <select
+                  className="select w-full mb-4 bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-gray-800 text-xs font-bold uppercase tracking-wider h-11"
+                  value={selectedStatus || selected.status}
+                  onChange={e => setSelectedStatus(e.target.value)}
+                >
+                  {stages.map(s => <option key={s} value={s}>{statusLabels[s]}</option>)}
                 </select>
 
                 <div className="flex gap-3">
-                  <button className="btn-primary shadow-glow-cyan flex-1 justify-center text-xs">Confirm Transition</button>
+                  <button
+                    onClick={handleConfirmTransition}
+                    disabled={transitioning || (!selectedStatus || selectedStatus === selected.status)}
+                    className={`btn-primary shadow-glow-cyan flex-1 justify-center text-xs disabled:opacity-50 disabled:cursor-not-allowed ${transitionSuccess ? 'bg-green-500' : ''}`}
+                  >
+                    {transitionSuccess ? <><CheckCircle size={14} /> Saved!</> : transitioning ? 'Saving...' : 'Confirm Transition'}
+                  </button>
                   <button className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 font-bold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-1 text-xs text-center uppercase tracking-wider">Log Telemetry</button>
                 </div>
               </div>
@@ -256,19 +278,18 @@ export default function AdminCandidates() {
           <div className="flex items-center gap-2">
             <button onClick={handleBulkExport} className="flex items-center gap-2 px-4 py-2 bg-white/10 dark:bg-brand-charcoal/10 hover:bg-white/20 dark:hover:bg-brand-charcoal/20 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
               <Download size={14} /> Export CSV
-            </button>
-            <div className="relative group">
-              <button className="flex items-center gap-2 px-4 py-2 bg-white/10 dark:bg-brand-charcoal/10 hover:bg-white/20 dark:hover:bg-brand-charcoal/20 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
-                <ShieldCheck size={14} /> Mark Status
-              </button>
-              {/* Simple Tooltip-like Dropdown */}
-              <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-48 bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 text-brand-charcoal dark:text-white overflow-hidden">
-                 {stages.map(s => (
-                   <button key={s} onClick={() => { alert(`Bulk marked ${selectedIds.length} as ${s}`); setSelectedIds([]) }} className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors">{statusLabels[s]}</button>
-                 ))}
+            </button>              <div className="relative group">
+                <button className="flex items-center gap-2 px-4 py-2 bg-white/10 dark:bg-brand-charcoal/10 hover:bg-white/20 dark:hover:bg-brand-charcoal/20 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+                  <ShieldCheck size={14} /> Mark Status
+                </button>
+                {/* Simple Tooltip-like Dropdown */}
+                <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-48 bg-white dark:bg-dark-surface border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl p-2 text-brand-charcoal dark:text-white overflow-hidden">
+                   {stages.map(s => (
+                     <button key={s} onClick={() => { bulkUpdateCandidateStatus(selectedIds, s); setSelectedIds([]) }} className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors">{statusLabels[s]}</button>
+                   ))}
+                </div>
               </div>
-            </div>
-            <button onClick={handleBulkDelete} className="flex items-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-rose-500/20">
+  <button onClick={handleBulkDelete} className="flex items-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-rose-500/20">
               <Trash2 size={14} /> Bulk Delete
             </button>
           </div>
