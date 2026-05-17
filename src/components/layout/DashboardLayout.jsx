@@ -81,7 +81,7 @@ export default function DashboardLayout({ role }) {
       {/* Logo area */}
       <div className={`flex items-center h-20 px-6 border-b border-surface-border dark:border-dark-border flex-shrink-0 ${collapsed && !mobile ? 'justify-center px-0' : 'gap-3'}`}>
         {(!collapsed || mobile) && (
-          <img src="/logo.png" alt="Firstdot Works" className="h-16 w-auto dark:invert dark:brightness-200 object-contain" />
+          <img src="/logo.png" alt="Firstdot Works" className="h-11 w-auto dark:invert dark:brightness-200 object-contain" />
         )}
         {collapsed && !mobile && (
           <div className="w-8 h-8 rounded-full bg-brand-cyan flex items-center justify-center text-white font-bold text-lg">F</div>

@@ -42,7 +42,7 @@ export default function Footer() {
           {/* Brand col */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-6 inline-block">
-              <img src="/logo.png" alt="Firstdot Works" className="h-40 w-auto brightness-0 invert scale-125 object-contain" />
+              <img src="/logo.png" alt="Firstdot Works" className="h-20 w-auto brightness-0 invert object-contain" />
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed mb-8 max-w-sm">
               Chennai-based HR & recruitment startup connecting the right talent with the right opportunity. Building the future of work, node by node.
